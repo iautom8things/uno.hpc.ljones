@@ -37,6 +37,8 @@ Now you're ready to show the world:
 
 $ git commit -m 'fixed manuels garbage-of-a-code'
 
+$ git push origin master //I'm actually not sure about this. I'll get back to you
+
 Want to check that your change was made?
 
 $ git log
@@ -44,6 +46,10 @@ $ git log
 If you ever forget a git command:
 
 $ git help
+
+Or if you want more info on a command, add --help to it, like this:
+
+$ git pull --help
 
 All other commands are considered magic, and too complex for even the likes of me.
 
