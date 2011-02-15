@@ -1,0 +1,50 @@
+Greetings Folks,
+
+So before things get really crazy with there being a half-dozen different versions of the code floating around, I set up a git repository for our Leonard Jones problem.
+
+If you just want to poke around, go here:
+
+https://github.com/mazubieta/uno.hpc.ljones.git
+
+If you want to contribute, register to github, if you haven't already and fire me an email with your username on github. I'll add you as a contributor asap.
+
+If you are totally unfamiliar and want a horrible crach course, here are the main commands you'll need:
+
+First, install git:
+
+Linux:
+$ sudo apt-get install git
+
+Mac, Download and install this:
+http://code.google.com/p/git-osx-installer/
+
+Windows:
+GTFO
+
+Navigate to a folder you'd like to develop in:
+
+$ git clone git://github.com/mazubieta/uno.hpc.ljones.git
+
+BAAM! You've got the latest code.
+
+Let's say you add this incredible file (fmanny.c) that fixes some of my fugly code, and you want everyone to see:
+
+$ git add fmanny.c
+
+This tells git that you want it to watch this file.
+
+Now you're ready to show the world:
+
+$ git commit -m 'fixed manuels garbage-of-a-code'
+
+Want to check that your change was made?
+
+$ git log
+
+If you ever forget a git command:
+
+$ git help
+
+All other commands are considered magic, and too complex for even the likes of me.
+
+Manuel
