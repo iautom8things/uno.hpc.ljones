@@ -8,7 +8,7 @@ unsigned char inBounds(int row, int column, int height){
 	return 'f';
 }
 int belongs_to_cube(int x, int y, int z){
-    return ( (x) *SIZE) + (y) + ( (z) *(SIZE*SIZE));
+    return ( (x) * SIZE) + (y) + ( (z) *(SIZE*SIZE));
 }
 int adjacents(int *adjs){ // Determine the adjacent squares
     //int adjs[27];  // This array should exist outside of this method, with a pointer to

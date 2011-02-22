@@ -2,16 +2,15 @@
 
 #define SIZE_OF(x) (sizeof (x) / sizeof *(x))
 
-void addToCube(cube * aCube, part * aParticle){
-    aCube->lastPart+=1;
+void addToCube(cube * aCube, part aParticle){
     
-    printf("%d", aCube->lastPart);
+    //printf("%d", aCube->number_of_particles);
 	//malloc to increase cube
-	if(aCube->lastPart == 0)
+	if(aCube->number_of_particles ==0)
 		aCube->part = (part *)malloc(sizeof(part));
-	else
-		aCube->part = (part *)realloc(aCube->part , sizeof(part)*aCube->lastPart + sizeof(part));
+	else		      
+		aCube->part = (part *)realloc(aCube->part , sizeof(part)*aCube->number_of_particles + sizeof(part));
 
-	aCube->part[aCube->lastPart] = *aParticle;
-    // added by manuel
+	aCube->part[aCube->number_of_particles] = aParticle;
+	aCube->number_of_particles++;
 }
