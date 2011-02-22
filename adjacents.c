@@ -1,5 +1,4 @@
 #include "pib.h"
-#define SIZE 5 // This is a 5x5x5 cube
 
 // Written by Manuel Zubieta
 unsigned char inBounds(int row, int column, int height){ 
@@ -19,7 +18,7 @@ int adjacents(int *adjs){ // Determine the adjacent squares
     int x = index%(SIZE*SIZE)/SIZE;
     int y = index%SIZE;
     int z = index/(SIZE*SIZE);
-    printf("\nx:%d\ny:%d\nz:%d\n",x,y,z);
+    
     int n = 1;
     
     // This code is trivial beyond this point...Actually all of it is trivial
@@ -130,12 +129,6 @@ int adjacents(int *adjs){ // Determine the adjacent squares
         adjs[n] = (belongs_to_cube(x-1,y-1,z-1));
         n++;
     }
-    int i;
-    //Obviously, this needs to be modified for proper use, but just for demonstration
-    //We print out all of the adjs.
-    printf("total %d\n", n);
-    for (i = 0; i < n; i++){
-        printf("%d : %d\n",i,adjs[i]);
-    }
-    return 0;
+
+    return n;
 }
