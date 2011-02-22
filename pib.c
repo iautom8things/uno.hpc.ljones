@@ -10,25 +10,20 @@ was defined on the whiteboard.
 7 Feb 2011, 8PM
 --mau5*/
 
-
-
-
 int main(int argc, char** argv){
-	int i;                          // an iterator
-	srand(time(NULL));              // seed the random number generator
+	int i; // an iterator
+	srand(time(NULL)); // seed the random number generator
 	int random_num = rand();
 	
-	cube cubes[TOTAL_NUMBER_OF_CUBES];          // allocate an array of our cubes
+	cube cubes[TOTAL_NUMBER_OF_CUBES]; // allocate an array of our cubes
 
     for(i=0;i<TOTAL_NUMBER_OF_CUBES;i++){
-        //cubes[i].part = (part *)malloc(sizeof(part));
         cubes[i].number_of_particles = 0;
         cubes[i].energy = 0;
     }
 
 	particle temp_particle;
 	float x,y,z; //our temp variables for the x,y,and z coords
-	
 	//generate n particles
 	for(i=0;i<NUMBER_OF_PARTICLES;i++){
 	    random_num = rand();
@@ -45,11 +40,15 @@ int main(int argc, char** argv){
 	    
         temp_particle.myCube = belongs_to_cube(x/10,y/10,z/10);
         
+        // Debugging print line
         printf("(%d, %d, %d) -> %d\n", temp_particle.x, temp_particle.y, temp_particle.z, temp_particle.myCube);
         
         addToCube(&cubes[temp_particle.myCube], temp_particle);
 	}
-
+	
+	/*
+	   Debugging print of all information.
+	*/
 	for(i=0; i < TOTAL_NUMBER_OF_CUBES; i++){
         printf("Cube %d:\nNumber of particles: %d\n",i,cubes[i].number_of_particles);
         int j;

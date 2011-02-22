@@ -10,18 +10,25 @@ unsigned char inBounds(int row, int column, int height){
 int belongs_to_cube(int x, int y, int z){
     return ( (x) * SIZE) + (y) + ( (z) *(SIZE*SIZE));
 }
-int adjacents(int *adjs){ // Determine the adjacent squares
-    //int adjs[27];  // This array should exist outside of this method, with a pointer to
-                        // this array should be a parameter. n (number of adjs) would be returned.
-    int index = 62;      // This should actually be a parameter
-    adjs[0]=index;  // Whichever cube we're looking for the adjs, will always be in list
+
+/**
+ * Determine the adjacent cubes of a given cube index.
+ *
+ * Returns the number of adjacent cubes (including the given cube) and writes the list of adjacents to *adjs
+ *
+ *   @param adjs
+ *   @param index
+*/
+
+int adjacents(int *adjs, int index){ 
+    adjs[0]=index;          // Whichever cube we're looking for the adjs of, should also be included in the list
     int x = index%(SIZE*SIZE)/SIZE;
     int y = index%SIZE;
     int z = index/(SIZE*SIZE);
     
     int n = 1;
     
-    // This code is trivial beyond this point...Actually all of it is trivial
+    // This code is trivial beyond this point...
     // Check in every possible direction, from the given x,y,z coordinate, if
     // it is 'in the box' and if so, add the corresponding index to the array of adjs
     

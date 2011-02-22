@@ -23,7 +23,7 @@ GTFO
 
 Navigate to a folder you'd like to develop in:
 
-$ git clone git://github.com/mazubieta/uno.hpc.ljones.git
+$ git clone git@github.com:mazubieta/uno.hpc.ljones.git
 
 BAAM! You've got the latest code.
 
@@ -35,9 +35,11 @@ This tells git that you want it to watch this file.
 
 Now you're ready to show the world:
 
+This line commits your changes to your local repository:
 $ git commit -m 'fixed manuels garbage-of-a-code'
 
-$ git push origin master //I'm actually not sure about this. I'll get back to you
+This line pushes it to the master repository for everyone to see/download for themselves:
+$ git push origin master 
 
 Want to check that your change was made?
 
@@ -51,6 +53,6 @@ Or if you want more info on a command, add --help to it, like this:
 
 $ git pull --help
 
-All other commands are considered magic, and too complex for even the likes of me.
+All other commands are considered magic, and too complex for even me. :)
 
 Manuel

@@ -15,11 +15,11 @@ typedef struct{
 
 typedef struct{
 	particle *particles; //a dynamic array of particles for this cube
-	int number_of_particles; // the array index of the last particle, is indexed at 0
+	int number_of_particles; // The number of particles in the cube
 	double energy; //the total energy of the cube
 } cube;
 
 unsigned char inBounds(int row, int column, int height);
-int adjacents(int*);
+int adjacents(int* adjs, int index);
 int belongs_to_cube(int x, int y, int z);
 void addToCube(cube * aCube, particle aParticle);
