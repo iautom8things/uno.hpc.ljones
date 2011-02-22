@@ -12,58 +12,58 @@
 
 
 int main(int argc, char** argv){
-	int i; //an iterator
-	//seed the random number generator
-	srand(time(NULL));
-	int random_num = rand();
-	//allocate an array of our cubes
-	cube cubes[NUM_CUBES];
-    cube c;
+
+    int i; //an iterator for the 'for' loops
+
+    //seed the random number generator
+    srand(time(NULL));
+    int random_num = rand();
+    
+    //allocate an array of our cubes
+    cube cubes[NUM_CUBES];
+
+    //initialize the cubes
     for(i=0;i<NUM_CUBES;i++){
-        cubes[i].lastPart = -1;
+        cubes[i].lastParticle = -1;
         cubes[i].energy = 0;
     }
 
-	//allocate a 2-d array to store our particles
-	part particles[NUM_PARTICLES];
-	part particle;
+    //allocate a 2-d array to store our particles
+    //particle particles[NUM_PARTICLES];
+    particle tempParticle;
 
-	//our temp variables for the x,y,and z coords
-	//to create n particles
-	float x,y,z;
-	
-	//generate n particles
-	for(i=0;i<NUM_PARTICLES;i++){
-	    random_num = rand();
-	    x = 50*((random_num)/(RAND_MAX+1.0));
-	    particle.x = x;
+    //our temp variables for the x,y,and z coords
+    //to create n particles
+    float x,y,z;
 
-	    random_num = rand();
-	    y = 50*((random_num)/(RAND_MAX+1.0));
-	    particle.y = y;
 
-	    random_num = rand();
-	    z = 50*((random_num)/(RAND_MAX+1.0));
-	    particle.z = z;
-	    
-        particle.myCube = belongs_to_cube(x/10,y/10,z/10);
-        //notify cube
-        //cube *c = &cubes[particle.myCube];
-        //c->part[c->lastPart++] = particle;//add particle to cube's list of particles and increase lastPart
-	    particles[i] = particle;	
-        addToCube(&cubes[particle.myCube], &particle);
-	}
+    //generate n particles
+    for(i=0;i<NUM_PARTICLES;i++){
+        random_num = rand();
+        x = 50*((random_num)/(RAND_MAX+1.0));
+        tempParticle.x = x;
 
-	/*/print out our particles
-	for(i=0;i<NUM_PARTICLES;i++)
-		printf("%d, %d, %d :: %d\n",particles[i].x,
-			particles[i].y,particles[i].z, particles[i].myCube);*/
-	for(i=0; i < NUM_CUBES; i++){
-        printf("Cube %d:\nNumber of particles: %d\n",i,cubes[i].lastPart);
+        random_num = rand();
+        y = 50*((random_num)/(RAND_MAX+1.0));
+        tempParticle.y = y;
+
+        random_num = rand();
+        z = 50*((random_num)/(RAND_MAX+1.0));
+        tempParticle.z = z;
+
+        tempParticle.myCube = belongs_to_cube(x/10,y/10,z/10);
+
+        addToCube(&cubes[tempParticle.myCube], &tempParticle);
+    }
+
+    for(i=0; i < NUM_CUBES; i++){
+        printf("Cube %d:\nNumber of particles: %d\n",i,cubes[i].lastParticle+1);
+
         int j;
-        for (j=0 ; j < cubes[i].lastPart; j++){
-            printf("x: %d y: %d z: %d\n", cubes[i].part[j].x, cubes[i].part[j].y, cubes[i].part[j].z);
+
+        for (j=0 ; j < cubes[i].lastParticle; j++){
+            printf("x: %d y: %d z: %d\n", cubes[i].particles[j].x, cubes[i].particles[j].y, cubes[i].particles[j].z);
         }
-	}
+    }
 }
 
