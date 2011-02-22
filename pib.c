@@ -20,8 +20,8 @@ int main(int argc, char** argv){
 	cube cubes[NUM_CUBES];
     cube c;
     for(i=0;i<NUM_CUBES;i++){
-        c.lastPart = 0;
-        c.energy = 0;
+        cubes[i].lastPart = -1;
+        cubes[i].energy = 0;
     }
 
 	//allocate a 2-d array to store our particles
@@ -48,9 +48,10 @@ int main(int argc, char** argv){
 	    
         particle.myCube = belongs_to_cube(x/10,y/10,z/10);
         //notify cube
-        cube *c = &cubes[particle.myCube];
-        c->part[c->lastPart++] = particle;//add particle to cube's list of particles and increase lastPart
+        //cube *c = &cubes[particle.myCube];
+        //c->part[c->lastPart++] = particle;//add particle to cube's list of particles and increase lastPart
 	    particles[i] = particle;	
+        addToCube(&cubes[particle.myCube], &particle);
 	}
 
 	/*/print out our particles
