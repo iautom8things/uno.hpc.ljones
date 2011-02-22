@@ -1,16 +1,19 @@
 #include "pib.h"
 
-#define SIZE_OF(x) (sizeof (x) / sizeof *(x))
+/**
+ * Adds the given particle to the given cube.
+ * This function will grow the array of particles as needed
+ *
+ * @param aCube
+ * @param aParticle
+ */
+void addToCube(cube * aCube, particle aParticle){  
 
-void addToCube(cube * aCube, part aParticle){
-    
-    //printf("%d", aCube->number_of_particles);
-	//malloc to increase cube
 	if(aCube->number_of_particles ==0)
-		aCube->part = (part *)malloc(sizeof(part));
+		aCube->particles = (particle *)malloc(sizeof(particle));
 	else		      
-		aCube->part = (part *)realloc(aCube->part , sizeof(part)*aCube->number_of_particles + sizeof(part));
+		aCube->particles = (particle *)realloc(aCube->particles , sizeof(particle)*aCube->number_of_particles + sizeof(particle));
 
-	aCube->part[aCube->number_of_particles] = aParticle;
+	aCube->particles[aCube->number_of_particles] = aParticle;
 	aCube->number_of_particles++;
 }
