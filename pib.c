@@ -27,7 +27,7 @@ int main(int argc, char** argv){
 	//generate n particles
 	for(i=0;i<NUMBER_OF_PARTICLES;i++){
 	    random_num = rand();
-	    x = SIZE*LENGTH_OF_CUBE*((random_num)/(RAND_MAX+1.0));//FUCKING MAGIC NUMBERS
+	    x = SIZE*LENGTH_OF_CUBE*((random_num)/(RAND_MAX+1.0));
 	    temp_particle.x = x;
 
 	    random_num = rand();
