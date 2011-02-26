@@ -49,18 +49,17 @@ int main(int argc, char** argv){
 	/*
 	   Debugging print of all information.
 	*/
-	
+	/*
 	for(i=0; i < TOTAL_NUMBER_OF_CUBES; i++){
         printf("Cube %d:\nNumber of particles: %d\n",i,cubes[i].number_of_particles);
         int j;
         for (j=0 ; j < cubes[i].number_of_particles; j++){
             printf("x: %f y: %f z: %f\n", cubes[i].particles[j].x, cubes[i].particles[j].y, cubes[i].particles[j].z);
         }
-	}
+	}*/
 	/*
 	   test distance
-	*/
-    temp_particle = cubes[124].particles[0];
+	   temp_particle = cubes[124].particles[0];
     particle *other_particle = &cubes[124].particles[cubes[124].number_of_particles-1];
     double dist = distance(&temp_particle,other_particle);
     printf("A - \tx:%f\n\ty:%f\n\tz:%f\n\nB - \tx:%f\n\ty:%f\n\tz:%f\n\nDistance: %f\n",temp_particle.x, temp_particle.y, temp_particle.z,other_particle->x, other_particle->y, other_particle->z, dist);
@@ -69,11 +68,11 @@ int main(int argc, char** argv){
         test energy
     */
     
-    printf("Pair energy: %f\n", calculate_pair_energy(dist));
+   // printf("Pair energy: %f\n", calculate_pair_energy(dist));
     
     for(i=0; i< TOTAL_NUMBER_OF_CUBES; i++){
         calculate_cube_energy(&cubes[i]);
-        printf("Cube %d:\nEnergy: %f\n\n", i, cubes[i].energy);
+        printf("Cube %d:\nEnergy: %f Particles: %d \n\n", i, cubes[i].energy, cubes[i].number_of_particles);
     }
 }
 

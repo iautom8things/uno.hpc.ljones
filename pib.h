@@ -27,3 +27,4 @@ void addToCube(cube * aCube, particle aParticle);
 double distance(particle *a, particle *b);
 double calculate_pair_energy(double distance);
 void calculate_cube_energy(cube *c);
+int positiveVector(particle *a, particle *b);
