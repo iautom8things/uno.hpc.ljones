@@ -11,6 +11,7 @@ was defined on the whiteboard.
 --mau5*/
 
 int main(int argc, char** argv){
+	particle particles[NUMBER_OF_PARTICLES];
 	int i; // an iterator
 	srand(time(NULL)); // seed the random number generator
 	int random_num = rand();
@@ -42,6 +43,8 @@ int main(int argc, char** argv){
         
         // Debugging print line
         //printf("(%f, %f, %f) -> %d\n", temp_particle.x, temp_particle.y, temp_particle.z, temp_particle.myCube);
+
+		particles[i] = temp_particle;
         
         addToCube(&cubes[temp_particle.myCube], temp_particle);
 	}
@@ -90,6 +93,19 @@ int main(int argc, char** argv){
 		total_energy += cubes[i].energy;
 
 	printf("Total energy: %f \n\n", total_energy );
+
+	double actual_energy = 0;
+
+	int j;
+    for (i = 0; i < NUMBER_OF_PARTICLES-1; i++){
+        for (j = i+1; j < NUMBER_OF_PARTICLES; j++){
+
+			//if(positiveVector( particles[i] , particles[j]))
+            	actual_energy += calculate_pair_energy(distance(&particles[i], &particles[j]));
+        }
+    }
+
+	printf("Actual energy: %f \n\n", actual_energy );
 	
 }
 
