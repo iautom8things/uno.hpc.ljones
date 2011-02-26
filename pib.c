@@ -23,7 +23,7 @@ int main(int argc, char** argv){
     }
 
 	particle temp_particle;
-	float x,y,z; //our temp variables for the x,y,and z coords
+	double x,y,z; //our temp variables for the x,y,and z coords
 	//generate n particles
 	for(i=0;i<NUMBER_OF_PARTICLES;i++){
 	    random_num = rand();
@@ -38,10 +38,10 @@ int main(int argc, char** argv){
 	    z = SIZE*LENGTH_OF_CUBE*((random_num)/(RAND_MAX+1.0));
 	    temp_particle.z = z;
 	    
-        temp_particle.myCube = belongs_to_cube(x/10,y/10,z/10);
+        temp_particle.myCube = belongs_to_cube((int) x/10,(int) y/10,(int) z/10);
         
         // Debugging print line
-        printf("(%d, %d, %d) -> %d\n", temp_particle.x, temp_particle.y, temp_particle.z, temp_particle.myCube);
+        printf("(%f, %f, %f) -> %d\n", temp_particle.x, temp_particle.y, temp_particle.z, temp_particle.myCube);
         
         addToCube(&cubes[temp_particle.myCube], temp_particle);
 	}
@@ -49,15 +49,31 @@ int main(int argc, char** argv){
 	/*
 	   Debugging print of all information.
 	*/
+	
 	for(i=0; i < TOTAL_NUMBER_OF_CUBES; i++){
         printf("Cube %d:\nNumber of particles: %d\n",i,cubes[i].number_of_particles);
         int j;
         for (j=0 ; j < cubes[i].number_of_particles; j++){
-            printf("x: %d y: %d z: %d\n", cubes[i].particles[j].x, cubes[i].particles[j].y, cubes[i].particles[j].z);
+            printf("x: %f y: %f z: %f\n", cubes[i].particles[j].x, cubes[i].particles[j].y, cubes[i].particles[j].z);
         }
 	}
+	/*
+	   test distance
+	*/
     temp_particle = cubes[124].particles[0];
     particle *other_particle = &cubes[124].particles[cubes[124].number_of_particles-1];
-    printf("A - \tx:%d\n\ty:%d\n\tz:%d\n\nB - \tx:%d\n\ty:%d\n\tz:%d\n\nDistance: %f\n",temp_particle.x, temp_particle.y, temp_particle.z,other_particle->x, other_particle->y, other_particle->z, distance(&temp_particle,other_particle));
+    double dist = distance(&temp_particle,other_particle);
+    printf("A - \tx:%f\n\ty:%f\n\tz:%f\n\nB - \tx:%f\n\ty:%f\n\tz:%f\n\nDistance: %f\n",temp_particle.x, temp_particle.y, temp_particle.z,other_particle->x, other_particle->y, other_particle->z, dist);
+    
+    /*
+        test energy
+    */
+    
+    printf("Pair energy: %f\n", calculate_pair_energy(dist));
+    
+    for(i=0; i< TOTAL_NUMBER_OF_CUBES; i++){
+        calculate_cube_energy(&cubes[i]);
+        printf("Cube %d:\nEnergy: %f\n\n", i, cubes[i].energy);
+    }
 }
 
