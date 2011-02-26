@@ -41,7 +41,7 @@ int main(int argc, char** argv){
         temp_particle.myCube = belongs_to_cube((int) x/10,(int) y/10,(int) z/10);
         
         // Debugging print line
-        printf("(%f, %f, %f) -> %d\n", temp_particle.x, temp_particle.y, temp_particle.z, temp_particle.myCube);
+        //printf("(%f, %f, %f) -> %d\n", temp_particle.x, temp_particle.y, temp_particle.z, temp_particle.myCube);
         
         addToCube(&cubes[temp_particle.myCube], temp_particle);
 	}
@@ -81,7 +81,7 @@ int main(int argc, char** argv){
 		//get the energy contributed to the system by this cube
         calculate_cube_energy(particles, number_particles, &cubes[i]);
 		//print the cube information
-        printf("Cube %d:\nEnergy: %f Particles: %d \n\n", i, cubes[i].energy, cubes[i].number_of_particles);
+        printf("Cube %d:\nEnergy: %f \nParticles: %d \nNumber of Adj Particles: %d\n\n", i, cubes[i].energy, cubes[i].number_of_particles, number_particles);
     }
 
 	//print total energy of the system

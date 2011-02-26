@@ -10,14 +10,14 @@ double distance(particle *a, particle *b){
 }
 
 //this needs more work
-int positiveVector(particle *a, particle *b){
+int positiveVector(particle a, particle b){
 	//double x = (*b).x - (*a).x ;
-	double y = (*b).y - (*a).y ;
-	//double z = (*b).z - (*a).z ;
+	//double y = (*b).y - (*a).y ;
+	double z = b.z - a.z ;
 	int result = 0;
 	
 	
- 	if(y > 0)
+ 	if(z > 0)
 		result = 1;
 
 	return result;

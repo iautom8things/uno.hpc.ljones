@@ -11,7 +11,7 @@ void calculate_cube_energy(particle * particles, int number_of_particles, cube *
     for (i = 0; i < n; i++){
         for (j = i; j < n; j++){
 
-			if(positiveVector( &particles[i] , &particles[j]))
+			if(positiveVector( particles[i] , particles[j]))
             	energy_sum += calculate_pair_energy(distance(&particles[i], &particles[j]));
         }
     }

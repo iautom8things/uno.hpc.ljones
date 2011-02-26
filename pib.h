@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define NUMBER_OF_PARTICLES 1000
+#define NUMBER_OF_PARTICLES 10000
 #define SIZE 5 // This is the number of cubes on a axis of the box (5 = a 5x5x5 cube)
 #define LENGTH_OF_CUBE 10
 #define TOTAL_NUMBER_OF_CUBES SIZE*SIZE*SIZE //5x5x5 box = 125 cubes
@@ -27,5 +27,5 @@ void addToCube(cube * aCube, particle aParticle);
 double distance(particle *a, particle *b);
 double calculate_pair_energy(double distance);
 void calculate_cube_energy(particle * particles, int number_of_particles, cube * c);
-int positiveVector(particle *a, particle *b);
+int positiveVector(particle a, particle b);
 particle* getParticles(int * neighbors, int num_neighbors, cube * cubes, int * total_particles);
