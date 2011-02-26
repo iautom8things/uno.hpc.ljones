@@ -9,6 +9,7 @@ double distance(particle *a, particle *b){
     return (double)sqrt(deltaX*deltaX + deltaY*deltaY + deltaZ*deltaZ);
 }
 
+//this needs more work
 int positiveVector(particle *a, particle *b){
 	//double x = (*b).x - (*a).x ;
 	double y = (*b).y - (*a).y ;

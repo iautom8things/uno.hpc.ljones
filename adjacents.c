@@ -1,5 +1,36 @@
 #include "pib.h"
 
+
+
+particle* getParticles(int * neighbors, int num_neighbors, cube * cubes, int * total_particles)
+{
+	int i, j;//iterators
+	int totalParticles = 0;//the total number of particles in the system
+	int resultIndex = 0;//the index for the particle array that is returned
+	particle * result;//the particle array to be returned
+	result = (particle *)malloc(0);//initialize the array to zero elements
+
+	//go through each neighbor cube
+	for(i = 0; i < num_neighbors; i++)
+	{
+		cube * tempCube = &cubes[neighbors[i]];//get the first cube
+		totalParticles += (*tempCube).number_of_particles;//increase the total number of particles
+		result = (particle *)realloc(result , sizeof(particle)*totalParticles);//grow the array to hold the new particles
+
+		//add the particles from each cube to the resulting array
+		for(j = 0; j < (*tempCube).number_of_particles; j++ )
+		{
+			result[resultIndex] = tempCube->particles[j];
+			resultIndex ++;
+		}
+	}
+
+	//set the total number of particles
+	*total_particles = totalParticles;
+
+	return result;
+}
+
 // Written by Manuel Zubieta
 unsigned char inBounds(int row, int column, int height){ 
     // is the specefied cube (row, columne, height)  on the grid?

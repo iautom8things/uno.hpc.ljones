@@ -71,8 +71,25 @@ int main(int argc, char** argv){
    // printf("Pair energy: %f\n", calculate_pair_energy(dist));
     
     for(i=0; i< TOTAL_NUMBER_OF_CUBES; i++){
-        calculate_cube_energy(&cubes[i]);
+
+		int neighbors[27];//a array of neighbor cube numbers
+		int number_particles;//number of total particles in the neighboring cubes including the current cube
+		int num_neighbors = adjacents(neighbors, i);//number of neighbor cubes
+
+		//get an array of total particles
+		particle * particles = getParticles(neighbors , num_neighbors, cubes, &number_particles);
+		//get the energy contributed to the system by this cube
+        calculate_cube_energy(particles, number_particles, &cubes[i]);
+		//print the cube information
         printf("Cube %d:\nEnergy: %f Particles: %d \n\n", i, cubes[i].energy, cubes[i].number_of_particles);
     }
+
+	//print total energy of the system
+	double total_energy = 0;
+	for(i = 0; i < TOTAL_NUMBER_OF_CUBES; i++)
+		total_energy += cubes[i].energy;
+
+	printf("Total energy: %f \n\n", total_energy );
+	
 }
 
