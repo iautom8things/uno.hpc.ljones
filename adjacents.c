@@ -52,12 +52,12 @@ int belongs_to_cube(int x, int y, int z){
 */
 
 int adjacents(int *adjs, int index){ 
-    adjs[0]=index;          // Whichever cube we're looking for the adjs of, should also be included in the list
+    //adjs[0]=index;          // Whichever cube we're looking for the adjs of, should also be included in the list
     int x = index%(SIZE*SIZE)/SIZE;
     int y = index%SIZE;
     int z = index/(SIZE*SIZE);
     
-    int n = 1;
+    int n = 0;
     
     // This code is trivial beyond this point...
     // Check in every possible direction, from the given x,y,z coordinate, if
