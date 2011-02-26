@@ -1,11 +1,15 @@
 #include "pib.h"
 
+/**
+* This sshould take the current cube and all the neighbor cubes 
+* to calcualte the energy given to the system.
+*/
 void calculate_cube_energy(cube *c){
     int n = c->number_of_particles, i, j;
     double energy_sum = 0;
     
-    for (i = 0; i < n-1; i++){
-        for (j = i+1; j < n; j++){
+    for (i = 0; i < n; i++){
+        for (j = i; j < n; j++){
 
 			if(positiveVector(&c->particles[i] , &c->particles[j]))
             	energy_sum += calculate_pair_energy(distance(&c->particles[i], &c->particles[j]));
