@@ -56,5 +56,8 @@ int main(int argc, char** argv){
             printf("x: %d y: %d z: %d\n", cubes[i].particles[j].x, cubes[i].particles[j].y, cubes[i].particles[j].z);
         }
 	}
+    temp_particle = cubes[124].particles[0];
+    particle *other_particle = &cubes[124].particles[cubes[124].number_of_particles-1];
+    printf("A - \tx:%d\n\ty:%d\n\tz:%d\n\nB - \tx:%d\n\ty:%d\n\tz:%d\n\nDistance: %f\n",temp_particle.x, temp_particle.y, temp_particle.z,other_particle->x, other_particle->y, other_particle->z, distance(&temp_particle,other_particle));
 }
 

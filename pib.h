@@ -23,3 +23,4 @@ unsigned char inBounds(int row, int column, int height);
 int adjacents(int* adjs, int index);
 int belongs_to_cube(int x, int y, int z);
 void addToCube(cube * aCube, particle aParticle);
+double distance(particle *a, particle *b);
