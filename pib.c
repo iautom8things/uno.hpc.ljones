@@ -75,16 +75,9 @@ int main(int argc, char** argv){
     
     for(i=0; i< TOTAL_NUMBER_OF_CUBES; i++){
 
-		int neighbors[27];//a array of neighbor cube numbers
-		int number_particles;//number of total particles in the neighboring cubes including the current cube
-		int num_neighbors = adjacents(neighbors, i);//number of neighbor cubes
-
-		//get an array of total particles
-		particle * particles = getParticles(neighbors , num_neighbors, cubes, &number_particles);
-		//get the energy contributed to the system by this cube
-        calculate_cube_energy(particles, number_particles, &cubes[i]);
+        calculate_cube_energy(cubes, i);
 		//print the cube information
-        printf("Cube %d:\nEnergy: %f \nParticles: %d \nNumber of Adj Particles: %d\n\n", i, cubes[i].energy, cubes[i].number_of_particles, number_particles);
+        printf("Cube %d:\nEnergy: %f \nParticles: %d \nNumber of Adj Particles: \n\n", i, cubes[i].energy, cubes[i].number_of_particles);
     }
 
 	//print total energy of the system
