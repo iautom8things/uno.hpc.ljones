@@ -1,14 +1,16 @@
 #include "pib.h"
 #include <time.h>
-/*
-Accomplishments so far.
-Defined the structs to represent particles and cubes
-randomply generated 1000 particles and assigned them
-to an array of particle structures. The particle coordinates
-are currently defined by integers because that is how the struct
-was defined on the whiteboard.
-7 Feb 2011, 8PM
---mau5*/
+
+/**
+ * This main is used to test the progress of the solution to the
+ * Lennard-Jones Problem.
+ *
+ * Code is being worked on by Manuel Zubieta, Daniel Ward, and Aaron Maus
+ */
+
+/**
+ * Still need to perturb a particle and calulate the energy difference
+ */
 
 int main(int argc, char** argv){
 

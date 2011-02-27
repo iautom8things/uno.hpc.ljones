@@ -6,7 +6,7 @@
 #define SIZE 5 // This is the number of cubes on a axis of the box (5 = a 5x5x5 cube)
 #define LENGTH_OF_CUBE 10 //length of a cube in angstroms
 #define TOTAL_NUMBER_OF_CUBES SIZE*SIZE*SIZE //5x5x5 box = 125 cubes
-#define MAX_NUMBER_OF_ADJACENT_CUBES 26
+#define MAX_NUMBER_OF_ADJACENTS 26
 
 typedef struct{
 	double x; //x coordinate loaction of the particle
@@ -21,13 +21,19 @@ typedef struct{
 	long double energy; //the total energy of the cube
 } cube;
 
-
-unsigned char inBounds(int row, int column, int height);
+//Found in adjacents.c
+particle* get_particles_from_cubes(int * neighbors, int num_neighbors, cube * cubes, int * total_particles);
+unsigned char in_bounds(int row, int column, int height);
 int adjacents(int* adjacent_index_array, int index);
 int belongs_to_cube(int x, int y, int z);
+
+//Found in addtocube.c
 void addToCube(cube * a_cube, particle a_particle);
-double distance(particle *a, particle *b);
+
+//Found in distance.c
+double distance(particle a, particle b);
+
+//Found in energy.c
 long double calculate_pair_energy(double distance);
 void calculate_cube_energy(cube *cubes, int cube_index);
-int positiveVector(particle a, particle b);
-particle* getParticles(int * neighbors, int num_neighbors, cube * cubes, int * total_particles);
+

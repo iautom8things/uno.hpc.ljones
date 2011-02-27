@@ -1,24 +1,18 @@
 #include "pib.h"
 
-double distance(particle *a, particle *b){
+/**
+ * Calulate the distance between two particles
+ *
+ * @param a The first particle
+ * @param b The Second particle
+ * @return The distance between a and b
+ * @author Manuel Zubieta
+ */
+double distance(particle a, particle b){
 
-	double deltaX = (*b).x - (*a).x;
-	double deltaY = (*b).y - (*a).y;
-	double deltaZ = (*b).z - (*a).z;
+	double deltaX = b.x - a.x;
+	double deltaY = b.y - a.y;
+	double deltaZ = b.z - a.z;
 
     return (double)sqrt(deltaX*deltaX + deltaY*deltaY + deltaZ*deltaZ);
-}
-
-//this needs more work
-int positiveVector(particle a, particle b){
-	//double x = (*b).x - (*a).x ;
-	//double y = (*b).y - (*a).y ;
-	double z = b.z - a.z ;
-	int result = 0;
-	
-	
- 	if(z > 0)
-		result = 1;
-
-	return result;
 }

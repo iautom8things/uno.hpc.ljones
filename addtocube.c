@@ -17,6 +17,7 @@ void addToCube(cube * a_cube, particle a_particle){
 
     //add the particle to the last place in the particle array of the given cube
     a_cube->particles[a_cube->number_of_particles] = a_particle;
+    
     //increase number_of_particle in the given cube
     a_cube->number_of_particles++;
 }
