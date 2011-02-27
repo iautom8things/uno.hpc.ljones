@@ -7,6 +7,7 @@
 #define LENGTH_OF_CUBE 10 //length of a cube in angstroms
 #define TOTAL_NUMBER_OF_CUBES SIZE*SIZE*SIZE //5x5x5 box = 125 cubes
 #define MAX_NUMBER_OF_ADJACENTS 26
+#define NUMBER_OF_TRIALS 1000
 
 typedef struct{
 	double x; //x coordinate loaction of the particle

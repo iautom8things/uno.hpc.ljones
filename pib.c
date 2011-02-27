@@ -18,6 +18,8 @@ int main(int argc, char** argv){
     srand(time(NULL)); // seed the random number generator
     int random_num = rand(); //get a random number
 
+
+	long double energys[NUMBER_OF_TRIALS];
     cube cubes[TOTAL_NUMBER_OF_CUBES]; // allocate an array for our cubes
 
     //initalize the cubes in the array
