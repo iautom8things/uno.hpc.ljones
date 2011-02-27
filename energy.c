@@ -81,3 +81,14 @@ double compare_energies(long double energy_a, long double energy_b, long double 
 	else
 		return exp(-1 * (energy_b - energy_a)/(boltzmann*temperature));
 }
+
+long double system_energy(cube * cubes)
+{
+	int i;
+	long double energy = 0.0;
+
+	for(i = 0; i < TOTAL_NUMBER_OF_CUBES; i++)
+		energy += cubes[i].energy;
+
+	return energy;
+}

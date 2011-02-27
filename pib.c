@@ -1,6 +1,26 @@
 #include "pib.h"
 #include <time.h>
 
+
+void copy_system(cube * temp_system,cube * cubes)
+{
+	int i,j;
+	for(i = 0; i < TOTAL_NUMBER_OF_CUBES; i++){
+
+		temp_system[i].number_of_particles = cubes[i].number_of_particles;
+		temp_system[i].energy = cubes[i].energy;
+
+		for (j = 0; j < temp_system[i].number_of_particles; j++){
+
+			cubes[i].particles[j].x = cubes[i].particles[j].x;
+			cubes[i].particles[j].y = cubes[i].particles[j].y;
+			cubes[i].particles[j].z = cubes[i].particles[j].z;
+			cubes[i].particles[j].myCube = cubes[i].particles[j].myCube;
+		}
+	}
+	
+}
+
 /**
  * This main is used to test the progress of the solution to the
  * Lennard-Jones Problem.
@@ -19,7 +39,7 @@ int main(int argc, char** argv){
     int random_num = rand(); //get a random number
 
 
-	long double energys[NUMBER_OF_TRIALS];
+	long double energies[NUMBER_OF_TRIALS];//store accepted energies
     cube cubes[TOTAL_NUMBER_OF_CUBES]; // allocate an array for our cubes
 
     //initalize the cubes in the array
@@ -69,10 +89,38 @@ int main(int argc, char** argv){
     }
 
     //print total energy of the system by summing the energy of the cubes
-    long double total_energy = 0;
-    for(i = 0; i < TOTAL_NUMBER_OF_CUBES; i++)
-            total_energy += cubes[i].energy;
+    long double total_energy = system_energy(cubes);
 
     printf("Total energy: %Lf \n\n", total_energy );
+
+	//start the simualtion
+	printf("Starting the simulation with %d", NUMBER_OF_TRIALS);
+
+	i = 0;//reset the iterator to use the while loop
+	long double temperature = 100.0;//in Kelvins
+
+	while(i < NUMBER_OF_TRIALS)
+	{
+		long double old_energy = system_energy(cubes);
+		cube temp_system[TOTAL_NUMBER_OF_CUBES]; 
+
+		copy_system(temp_system,cubes);
+		
+		//move particle in the temp_system
+		//get the two changed cubes in the temp_system
+		//calcualte the new energy of the cubes affected in the temp_system 
+
+		long double new_energy = system_energy(temp_system);
+
+		if(compare_energies(old_energy,new_energy,temperature) > ACCEPTABLE_PROBABILITY)
+		{
+			//keep the accepted energies
+			energies[i] = old_energy;
+			//update the old sytem with the new system
+			copy_system(cubes,temp_system);
+			i++;
+		}
+		
+	}
 }
 

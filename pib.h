@@ -8,6 +8,7 @@
 #define TOTAL_NUMBER_OF_CUBES SIZE*SIZE*SIZE //5x5x5 box = 125 cubes
 #define MAX_NUMBER_OF_ADJACENTS 26
 #define NUMBER_OF_TRIALS 1000
+#define ACCEPTABLE_PROBABILITY .7
 
 typedef struct{
 	double x; //x coordinate loaction of the particle
@@ -35,6 +36,7 @@ void addToCube(cube * a_cube, particle a_particle);
 double distance(particle a, particle b);
 
 //Found in energy.c
+long double system_energy(cube * cubes);
 long double calculate_pair_energy(double distance);
 void calculate_cube_energy(cube *cubes, int cube_index);
 double compare_energies(long double energy_a, long double energy_b, long double temperature);
