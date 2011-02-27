@@ -37,4 +37,5 @@ double distance(particle a, particle b);
 //Found in energy.c
 long double calculate_pair_energy(double distance);
 void calculate_cube_energy(cube *cubes, int cube_index);
+double compare_energies(long double energy_a, long double energy_b, long double temperature);
 

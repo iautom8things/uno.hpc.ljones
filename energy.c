@@ -72,12 +72,12 @@ long double calculate_pair_energy(double distance){
 }
 
 // return the probablilty of acceptance
-int compare_energies(long double energy_a, long double energy_b, long double temperature)
+double compare_energies(long double energy_a, long double energy_b, long double temperature)
 {
 	long double boltzmann = 1.38 * pow(10,-23);
 
 	if(energy_b <= energy_a)
-		return 1;
+		return 1.0;
 	else
-		return exp(-1 * (energy_b - energy_a)/(boltzmann*temp));
+		return exp(-1 * (energy_b - energy_a)/(boltzmann*temperature));
 }
