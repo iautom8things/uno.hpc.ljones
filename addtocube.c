@@ -5,19 +5,18 @@
  * Adds the given particle to the given cube.
  * This function will grow the array of particles as needed
  *
- * @param aCube
- * @param aParticle
+ * @param a_cube The cube the the given particle will be added to
+ * @param a_particle The particle to be added to the given cube
  * 
- * Written by Daniel Ward
+ * @author Daniel Ward
  */
-void addToCube(cube * aCube, particle aParticle){  
-    // If the array of particles is empty then create one particle location
-	if(aCube->number_of_particles ==0)
-		aCube->particles = (particle *)malloc(sizeof(particle));
-	// Otherwise, just add one particle location.
-	else		      
-		aCube->particles = (particle *)realloc(aCube->particles , sizeof(particle)*aCube->number_of_particles + sizeof(particle));
+void addToCube(cube * a_cube, particle a_particle){
 
-	aCube->particles[aCube->number_of_particles] = aParticle;
-	aCube->number_of_particles++;
+    //expand the array of particles by one particle element
+    a_cube->particles = (particle *)realloc(a_cube->particles , sizeof(particle)*a_cube->number_of_particles + sizeof(particle));
+
+    //add the particle to the last place in the particle array of the given cube
+    a_cube->particles[a_cube->number_of_particles] = a_particle;
+    //increase number_of_particle in the given cube
+    a_cube->number_of_particles++;
 }
