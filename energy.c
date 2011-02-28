@@ -26,7 +26,7 @@ void calculate_cube_energy(cube *cubes, int cube_index){
     int n = (*c).number_of_particles, i, j;
     
     //the sum of the energy for this cube
-    long double energy_sum = 0;
+    double energy_sum = 0;
     
     // for each particle in this cube
     for (i = 0; i < n - 1; i++)
@@ -40,7 +40,7 @@ void calculate_cube_energy(cube *cubes, int cube_index){
         //compare the ith particle in this cube to the particles in the adjacent cubes
         for (j = 0; j < number_of_adjacent_particles; j++)
         {
-            energy_sum += calculate_pair_energy(distance(c->particles[i], adjacent_particles[j]));
+            energy_sum += 0.5 * calculate_pair_energy(distance(c->particles[i], adjacent_particles[j]));
         }
     }
 
@@ -56,7 +56,7 @@ void calculate_cube_energy(cube *cubes, int cube_index){
  * @return The energy of the pair of particels if the distance is >= to 10 Angstroms
  * @author Manuel Zubieta
  */
-long double calculate_pair_energy(double distance){
+double calculate_pair_energy(double distance){
 
     //these are compents of the energy function.
     //these are used to change the values later on
@@ -72,9 +72,9 @@ long double calculate_pair_energy(double distance){
 }
 
 // return the probablilty of acceptance
-double compare_energies(long double energy_a, long double energy_b, long double temperature)
+double compare_energies(double energy_a, double energy_b, double temperature)
 {
-	long double boltzmann = 1.38 * pow(10,-23);
+	double boltzmann = 1.38 * pow(10,-23);
 
 	if(energy_b <= energy_a)
 		return 1.0;
@@ -82,10 +82,10 @@ double compare_energies(long double energy_a, long double energy_b, long double 
 		return exp(-1 * (energy_b - energy_a)/(boltzmann*temperature));
 }
 
-long double system_energy(cube * cubes)
+double system_energy(cube * cubes)
 {
 	int i;
-	long double energy = 0.0;
+	double energy = 0.0;
 
 	for(i = 0; i < TOTAL_NUMBER_OF_CUBES; i++)
 		energy += cubes[i].energy;
