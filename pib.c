@@ -9,8 +9,6 @@ void copy_system(cube * temp_system,cube * cubes)
 
 		temp_system[i].number_of_particles = cubes[i].number_of_particles;
 		temp_system[i].energy = cubes[i].energy;
-
-		particle temp;
 		
 		free(temp_system[i].particles);
 		temp_system[i].particles = (particle *)malloc(sizeof(particle)*cubes[i].number_of_particles);
