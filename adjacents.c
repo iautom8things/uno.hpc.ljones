@@ -1,6 +1,66 @@
 #include "pib.h"
 
 
+
+void perturb(cube * cubes)
+{
+	int old_cube = rand() % TOTAL_NUMBER_OF_CUBES;
+	int new_cube = rand() % TOTAL_NUMBER_OF_CUBES;
+	int index = rand() % cubes[old_cube].number_of_particles;
+
+	remove_particle(&cubes[old_cube], index);
+
+	//create a new particle to be added to a random cube;
+	particle temp;
+
+	int x,y,z;
+	int random_num = rand();
+    x = SIZE*LENGTH_OF_CUBE*((random_num)/(RAND_MAX+1.0));
+    temp.x = x;
+
+    random_num = rand();
+    y = SIZE*LENGTH_OF_CUBE*((random_num)/(RAND_MAX+1.0));
+    temp.y = y;
+
+    random_num = rand();
+    z = SIZE*LENGTH_OF_CUBE*((random_num)/(RAND_MAX+1.0));
+    temp.z = z;
+
+    temp.myCube = belongs_to_cube((int) x/10,(int) y/10,(int) z/10);
+
+    addToCube(&cubes[new_cube], temp);
+
+	int i;
+	int adjacents_indices[MAX_NUMBER_OF_ADJACENTS];
+    int number_of_adjacents = adjacents(adjacents_indices, old_cube);
+
+	for(i = 0; i < number_of_adjacents; i++)
+		calculate_cube_energy(cubes, adjacents_indices[i]);
+
+	adjacents_indices[MAX_NUMBER_OF_ADJACENTS];
+    number_of_adjacents = adjacents(adjacents_indices, new_cube);
+
+	for(i = 0; i < number_of_adjacents; i++)
+		calculate_cube_energy(cubes, adjacents_indices[i]);
+	
+
+}
+
+
+void remove_particle(cube * a_cube, int index)
+{
+	int length = a_cube->number_of_particles;
+
+	int i; 
+	
+	for(i = index; i < length - 1; i++)
+	{
+		a_cube->particles[i] = a_cube->particles[i+1];
+	}
+
+	(*a_cube).number_of_particles--;
+}
+
 /**
  * This will get the particles in the cubes that are in the
  * array of cube indices. Used to get the adjacent particles

@@ -1,21 +1,25 @@
 #include "pib.h"
-#include <time.h>
 
 
 void copy_system(cube * temp_system,cube * cubes)
 {
 	int i,j;
+
 	for(i = 0; i < TOTAL_NUMBER_OF_CUBES; i++){
 
 		temp_system[i].number_of_particles = cubes[i].number_of_particles;
 		temp_system[i].energy = cubes[i].energy;
 
-		for (j = 0; j < temp_system[i].number_of_particles; j++){
+		particle temp;
+		
+		free(temp_system[i].particles);
+		temp_system[i].particles = (particle *)malloc(sizeof(particle)*cubes[i].number_of_particles);
 
-			cubes[i].particles[j].x = cubes[i].particles[j].x;
-			cubes[i].particles[j].y = cubes[i].particles[j].y;
-			cubes[i].particles[j].z = cubes[i].particles[j].z;
-			cubes[i].particles[j].myCube = cubes[i].particles[j].myCube;
+		for (j = 0; j < cubes[i].number_of_particles; j++){
+			temp_system[i].particles[j].x = cubes[i].particles[j].x;
+			temp_system[i].particles[j].x = cubes[i].particles[j].x;
+			temp_system[i].particles[j].x = cubes[i].particles[j].x;
+			temp_system[i].particles[j].myCube = cubes[i].particles[j].myCube;
 		}
 	}
 	
@@ -43,7 +47,7 @@ int main(int argc, char** argv){
     cube cubes[TOTAL_NUMBER_OF_CUBES]; // allocate an array for our cubes
 
     //initalize the cubes in the array
-    for(i=0;i<TOTAL_NUMBER_OF_CUBES;i++){
+    for(i=0;i<TOTAL_NUMBER_OF_CUBES;i++){cubes[i].particles[j].x;
         cubes[i].number_of_particles = 0;
         cubes[i].energy = 0;
         cubes[i].particles = (particle *)malloc(0);
@@ -83,21 +87,21 @@ int main(int argc, char** argv){
 
         calculate_cube_energy(cubes, i);
 		//print the cube information
-        printf("Cube %d:\n" , i);
-        printf("Energy: %Lf\n" , cubes[i].energy);
-        printf("Particles: %d\n\n", cubes[i].number_of_particles);
+        //printf("Cube %d:\n" , i);
+        //printf("Energy: %Lf\n" , cubes[i].energy);
+        //printf("Particles: %d\n\n", cubes[i].number_of_particles);
     }
 
     //print total energy of the system by summing the energy of the cubes
     long double total_energy = system_energy(cubes);
 
-    printf("Total energy: %Lf \n\n", total_energy );
+    //printf("Total energy: %Lf \n\n", total_energy );
 
 	//start the simualtion
-	printf("Starting the simulation with %d", NUMBER_OF_TRIALS);
+	printf("Starting the simulation with %d\n", NUMBER_OF_TRIALS);
 
 	i = 0;//reset the iterator to use the while loop
-	long double temperature = 100.0;//in Kelvins
+	long double temperature = 1000.0;//in Kelvins
 
 	while(i < NUMBER_OF_TRIALS)
 	{
@@ -106,14 +110,18 @@ int main(int argc, char** argv){
 
 		copy_system(temp_system,cubes);
 		
-		//move particle in the temp_system
-		//get the two changed cubes in the temp_system
-		//calcualte the new energy of the cubes affected in the temp_system 
+		perturb(temp_system);
 
 		long double new_energy = system_energy(temp_system);
 
-		if(compare_energies(old_energy,new_energy,temperature) > ACCEPTABLE_PROBABILITY)
+		double probability = compare_energies(old_energy,new_energy,temperature);
+		printf("%Lf\n", old_energy);
+		printf("%Lf\n", new_energy);
+
+		if(probability > ACCEPTABLE_PROBABILITY)
 		{
+
+			printf("success: %d\n", i);
 			//keep the accepted energies
 			energies[i] = old_energy;
 			//update the old sytem with the new system
@@ -122,5 +130,8 @@ int main(int argc, char** argv){
 		}
 		
 	}
+
+	for(i = 0; i < NUMBER_OF_TRIALS; i++)
+		printf("%Lf" , energies[i]);
 }
 

@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 #define NUMBER_OF_PARTICLES 10000 //number of particles in the system
 #define SIZE 5 // This is the number of cubes on a axis of the box (5 = a 5x5x5 cube)
 #define LENGTH_OF_CUBE 10 //length of a cube in angstroms
 #define TOTAL_NUMBER_OF_CUBES SIZE*SIZE*SIZE //5x5x5 box = 125 cubes
 #define MAX_NUMBER_OF_ADJACENTS 26
-#define NUMBER_OF_TRIALS 1000
+#define NUMBER_OF_TRIALS 1
 #define ACCEPTABLE_PROBABILITY .7
 
 typedef struct{
@@ -28,6 +29,8 @@ particle* get_particles_from_cubes(int * neighbors, int num_neighbors, cube * cu
 unsigned char in_bounds(int row, int column, int height);
 int adjacents(int* adjacent_index_array, int index);
 int belongs_to_cube(int x, int y, int z);
+void remove_particle(cube * a_cube, int index);
+void perturb(cube * cubes);
 
 //Found in addtocube.c
 void addToCube(cube * a_cube, particle a_particle);
