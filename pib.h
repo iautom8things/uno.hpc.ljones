@@ -8,8 +8,9 @@
 #define LENGTH_OF_CUBE 10 //length of a cube in angstroms
 #define TOTAL_NUMBER_OF_CUBES SIZE*SIZE*SIZE //5x5x5 box = 125 cubes
 #define MAX_NUMBER_OF_ADJACENTS 26
-#define NUMBER_OF_TRIALS 1
+#define NUMBER_OF_TRIALS 100
 #define ACCEPTABLE_PROBABILITY .7
+#define TEMPERATURE 1000.0
 
 typedef struct{
 	double x; //x coordinate loaction of the particle
@@ -30,7 +31,7 @@ unsigned char in_bounds(int row, int column, int height);
 int adjacents(int* adjacent_index_array, int index);
 int belongs_to_cube(double x, double y, double z);
 void remove_particle(cube * a_cube, int index);
-void perturb(cube * cubes);
+int perturb(cube * cubes);
 
 //Found in addtocube.c
 void addToCube(cube * a_cube, particle a_particle);

@@ -10,7 +10,7 @@ void copy_system(cube * temp_system,cube * cubes)
 		temp_system[i].number_of_particles = cubes[i].number_of_particles;
 		temp_system[i].energy = cubes[i].energy;
 		
-		free(temp_system[i].particles);
+		//free(temp_system[i].particles);
 		temp_system[i].particles = (particle *)malloc(sizeof(particle)*cubes[i].number_of_particles);
 
 		for (j = 0; j < cubes[i].number_of_particles; j++){
@@ -99,37 +99,21 @@ int main(int argc, char** argv){
 	printf("Starting the simulation with %d\n", NUMBER_OF_TRIALS);
 
 	i = 0;//reset the iterator to use the while loop
-	double temperature = 1000.0;//in Kelvins
 
 	while(i < NUMBER_OF_TRIALS)
 	{
 		double old_energy = system_energy(cubes);
-		cube temp_system[TOTAL_NUMBER_OF_CUBES]; 
-
-		copy_system(temp_system,cubes);
 		
-		perturb(temp_system);
-
-		double new_energy = system_energy(temp_system);
-
-		double probability = compare_energies(old_energy,new_energy,temperature);
-		//printf("%30.10f\n", old_energy);
-		//printf("%30.10f\n", new_energy);
-
-		if(probability > ACCEPTABLE_PROBABILITY)
+		if(perturb(cubes) == 1)
 		{
-
-			printf("success: %d\n", i);
-			//keep the accepted energies
-			energies[i] = old_energy;
-			//update the old sytem with the new system
-			copy_system(cubes,temp_system);
+			energies[i] = old_energy;			
 			i++;
+			//printf("old energy: %f\n", old_energy);
+			//printf("new energy: %f\n\n", system_energy(cubes));
 		}
-		i++;
 	}
 
-	//for(i = 0; i < NUMBER_OF_TRIALS; i++)
-	//	printf("%f" , energies[i]);
+	for(i = 0; i < NUMBER_OF_TRIALS; i++)
+	  printf("%f" , energies[i]);
 }
 

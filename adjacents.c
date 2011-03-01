@@ -2,18 +2,24 @@
 
 
 
-void perturb(cube * cubes)
+int perturb(cube * cubes)
 {
+	int i;
+	double temp_x, temp_y, temp_z;
+	int new_cube;
 	int old_cube = rand() % TOTAL_NUMBER_OF_CUBES;
-	int index = rand() % cubes[old_cube].number_of_particles;
+	int index = (int)rand() % cubes[old_cube].number_of_particles;
+	double old_energy = system_energy(cubes);
 
-	printf("before removal\nCube: %d\nNumber: %d\n\n",old_cube,cubes[old_cube].number_of_particles);
+	temp_x = cubes[old_cube].particles[index].x;
+	temp_y = cubes[old_cube].particles[index].y;
+	temp_z = cubes[old_cube].particles[index].z;
+
 	remove_particle(&cubes[old_cube], index);
-	printf("after removal\nCube: %d\nNumber: %d\n\n",old_cube,cubes[old_cube].number_of_particles);
-	
+
 	//create a new particle to be added to a random cube;
 	particle temp;
-	int i;
+	
 	double x,y,z;
 	double random_num = rand();
     x = SIZE*LENGTH_OF_CUBE*((random_num)/(RAND_MAX+1.0));
@@ -29,42 +35,63 @@ void perturb(cube * cubes)
 
     temp.myCube = belongs_to_cube((int) x/10,(int) y/10,(int) z/10);
 
-	printf("before add\nCube: %d\nNumber: %d\n\n",temp.myCube,cubes[temp.myCube].number_of_particles);
+	new_cube = temp.myCube;
 
-	for(i =0; i < cubes[temp.myCube].number_of_particles; i++)
-	{
-		printf("(x:%f y:%f z:%f)\n", cubes[temp.myCube].particles[i].x,cubes[temp.myCube].particles[i].y,cubes[temp.myCube].particles[i].z);
-	}
-    //addToCube(&cubes[temp.myCube], temp);
-	printf("after add\nCube: %d\nNumber: %d\n\n",temp.myCube,cubes[temp.myCube].number_of_particles);
+    addToCube(&cubes[temp.myCube], temp);
 
-	for(i =0; i < cubes[temp.myCube].number_of_particles; i++)
-	{
-		printf("(x:%f y:%f z:%f)\n", cubes[temp.myCube].particles[i].x,cubes[temp.myCube].particles[i].y,cubes[temp.myCube].particles[i].z);
-	}
-	//int i;
+
 	int adjacents_indices[MAX_NUMBER_OF_ADJACENTS];
     int number_of_adjacents = adjacents(adjacents_indices, old_cube);
 
-	 //for(i=0; i< number_of_adjacents; i++){
-
-        //calculate_cube_energy(cubes, old_cube);
-		//print the cube information
-        //printf("Cube %d:\n" , old_cube);
-        //printf("Energy: %f\n" , cubes[old_cube].energy);
-        //printf("Particles: %d\n\n", cubes[old_cube].number_of_particles);
-    //}
-
-	/*for(i = 0; i < number_of_adjacents; i++)
+	for(i = 0; i < number_of_adjacents; i++)
 		calculate_cube_energy(cubes, adjacents_indices[i]);
+
+	double energy_at_old = 0.0;
+
+	for(i = 0; i < number_of_adjacents; i++)
+		energy_at_old = cubes[adjacents_indices[i]].energy;
 
 	adjacents_indices[MAX_NUMBER_OF_ADJACENTS];
     number_of_adjacents = adjacents(adjacents_indices, temp.myCube);
 
 	for(i = 0; i < number_of_adjacents; i++)
 		calculate_cube_energy(cubes, adjacents_indices[i]);
+
+	double energy_at_new = 0.0;
+
+	for(i = 0; i < number_of_adjacents; i++)
+		energy_at_new = cubes[adjacents_indices[i]].energy;
+
+
 	
-*/
+
+	double new_energy = old_energy + (energy_at_new - energy_at_old);
+	double probability = compare_energies(old_energy,new_energy,TEMPERATURE);
+
+	if(probability <= ACCEPTABLE_PROBABILITY)
+	{
+		particle temp;
+	
+		
+		temp.x = temp_x;
+		temp.y = temp_y;
+		temp.z = temp_z;
+
+		temp.myCube = old_cube;
+
+		addToCube(&cubes[old_cube], temp);
+		
+		remove_particle(&cubes[new_cube],cubes[new_cube].number_of_particles);
+		//revert
+		return 0;
+		
+	}
+	else
+	{
+		return 1;
+	}
+	
+
 }
 
 
@@ -159,7 +186,8 @@ unsigned char in_bounds(int row, int column, int height){
  */
 int belongs_to_cube(double x, double y, double z){
 
-    return ( (x) * SIZE) + (y) + ( (z) *(SIZE*SIZE));
+    return ((x) * SIZE) + (y) + ( (z) *(SIZE*SIZE));
+	//return (int)( floor(x) / LENGTH_OF_CUBE) + ( floor(y)/LENGTH_OF_CUBE) + ((floor(z)/LENGTH_OF_CUBE) * (SIZE*SIZE));
 }
 
 /**

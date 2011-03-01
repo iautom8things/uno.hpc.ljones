@@ -29,20 +29,26 @@ void calculate_cube_energy(cube *cubes, int cube_index){
     double energy_sum = 0;
     
     // for each particle in this cube
-    for (i = 0; i < n - 1; i++)
+    for (i = 0; i < n ; i++)
     {
         // compare it with all the other particles in this cube w/o repeats
-        for (j = i+1; j < n; j++)
+        for (j = i; j < n; j++)
         {
-            energy_sum += calculate_pair_energy(distance(c->particles[i], c->particles[j]));
+			if(distance(c->particles[i], c->particles[j]) != 0)
+            	energy_sum += calculate_pair_energy(distance(c->particles[i], c->particles[j]));
         }
 
-        //compare the ith particle in this cube to the particles in the adjacent cubes
+        
+    }
+
+	for(i = 0; i < n ; i++)
+	{
+		//compare the ith particle in this cube to the particles in the adjacent cubes
         for (j = 0; j < number_of_adjacent_particles; j++)
         {
             energy_sum += 0.5 * calculate_pair_energy(distance(c->particles[i], adjacent_particles[j]));
         }
-    }
+	}
 
     //assign the energy to this cube
     (*c).energy = energy_sum;
