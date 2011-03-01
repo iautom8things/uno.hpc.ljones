@@ -108,12 +108,13 @@ int main(int argc, char** argv){
 		{
 			energies[i] = old_energy;			
 			i++;
+			printf("successes: %d\n" , i);
 			//printf("old energy: %f\n", old_energy);
 			//printf("new energy: %f\n\n", system_energy(cubes));
 		}
 	}
 
 	for(i = 0; i < NUMBER_OF_TRIALS; i++)
-	  printf("%f" , energies[i]);
+	  printf("energy %3d: %f\n" , i ,energies[i]);
 }
 
