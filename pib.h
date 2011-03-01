@@ -22,7 +22,7 @@ typedef struct{
 typedef struct{
 	particle *particles; //a dynamic array of particles for this cube
 	int number_of_particles; // The number of particles in the cube
-	double energy; //the total energy of the cube
+	long double energy; //the total energy of the cube
 } cube;
 
 //Found in adjacents.c
@@ -40,8 +40,8 @@ void addToCube(cube * a_cube, particle a_particle);
 double distance(particle a, particle b);
 
 //Found in energy.c
-double system_energy(cube * cubes);
-double calculate_pair_energy(double distance);
+long double system_energy(cube * cubes);
+long double calculate_pair_energy(double distance);
 void calculate_cube_energy(cube *cubes, int cube_index);
-double compare_energies(double energy_a, double energy_b, double temperature);
+double compare_energies(long double energy_a, long double energy_b, double temperature);
 

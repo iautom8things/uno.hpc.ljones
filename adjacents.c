@@ -14,17 +14,17 @@ int perturb(cube * cubes)
 	}while(cubes[old_cube].number_of_particles == 0);
 
 	int index = (int)rand() % cubes[old_cube].number_of_particles;
-	double old_energy = system_energy(cubes);
+	long double old_energy = system_energy(cubes);
 
  	//////////////////////////////////////////////////////////////////
-	double energy_at_old_initial = 0.0;
+	long double energy_at_old_initial = 0.0;
 	int adjacents_indices[MAX_NUMBER_OF_ADJACENTS];
     int number_of_adjacents = adjacents(adjacents_indices, old_cube);
 
 	for(i = 0; i < number_of_adjacents; i++)
 		energy_at_old_initial = cubes[adjacents_indices[i]].energy;
 
-	double energy_at_new_initial = 0.0;
+	long double energy_at_new_initial = 0.0;
 
 	for(i = 0; i < number_of_adjacents; i++)
 		energy_at_new_initial = cubes[adjacents_indices[i]].energy;
@@ -65,7 +65,7 @@ int perturb(cube * cubes)
 		calculate_cube_energy(cubes, adjacents_indices[i]);
 
 	/////////////////////////////////////////////////////////////////
-	double energy_at_old_final = 0.0;
+	long double energy_at_old_final = 0.0;
 
 	for(i = 0; i < number_of_adjacents; i++)
 		energy_at_old_final = cubes[adjacents_indices[i]].energy;
@@ -76,7 +76,7 @@ int perturb(cube * cubes)
 	for(i = 0; i < number_of_adjacents; i++)
 		calculate_cube_energy(cubes, adjacents_indices[i]);
 
-	double energy_at_new_final = 0.0;
+	long double energy_at_new_final = 0.0;
 
 	for(i = 0; i < number_of_adjacents; i++)
 		energy_at_new_final = cubes[adjacents_indices[i]].energy;
@@ -84,10 +84,10 @@ int perturb(cube * cubes)
 
 	
 
-	double new_energy = old_energy + (energy_at_old_final - energy_at_old_initial) + (energy_at_new_final - energy_at_new_initial);
+	long double new_energy = old_energy + (energy_at_old_final - energy_at_old_initial) + (energy_at_new_final - energy_at_new_initial);
 	double probability = compare_energies(old_energy,new_energy,TEMPERATURE);
 
-	if(probability < ACCEPTABLE_PROBABILITY)
+	if(probability > ACCEPTABLE_PROBABILITY)
 	{
 		particle temp;
 	

@@ -99,6 +99,7 @@ int main(int argc, char** argv){
 	printf("Starting the simulation with %d\n", NUMBER_OF_TRIALS);
 
 	i = 0;//reset the iterator to use the while loop
+	int failures = 0;
 
 	while(i < NUMBER_OF_TRIALS)
 	{
@@ -112,9 +113,14 @@ int main(int argc, char** argv){
 			//printf("old energy: %f\n", old_energy);
 			//printf("new energy: %f\n\n", system_energy(cubes));
 		}
+		else
+			failures++;
 	}
 
 	for(i = 0; i < NUMBER_OF_TRIALS; i++)
 	  printf("energy %3d: %f\n" , i ,energies[i]);
+
+	printf("Successes: %d\n", i);
+	printf("Failures: %d\n" , failures);
 }
 
