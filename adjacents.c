@@ -4,39 +4,36 @@
 
 int perturb(cube * cubes)
 {
-	int i;
-	double temp_x, temp_y, temp_z;
-	int new_cube;
-	int old_cube;
+	int i; //iterator
+	double temp_x, temp_y, temp_z; //used to store the coordinates of the destroyed particles
+	int new_cube; //the new cube number for the particle
+	int old_cube; //the old cube number for the particle
+	
 
 	do{
-		old_cube = rand() % TOTAL_NUMBER_OF_CUBES;
-	}while(cubes[old_cube].number_of_particles == 0);
+		old_cube = ((rand())/(RAND_MAX+1.0))*TOTAL_NUMBER_OF_CUBES;
+		//printf("cube: %3d num %d\n", old_cube,cubes[old_cube].number_of_particles);
+	}while(cubes[old_cube].number_of_particles < 1);
 
 	int index = (int)rand() % cubes[old_cube].number_of_particles;
 	long double old_energy = system_energy(cubes);
 
- 	//////////////////////////////////////////////////////////////////
-	long double energy_at_old_initial = 0.0;
+ 	
+	//get the intitial energy at the old cube
 	int adjacents_indices[MAX_NUMBER_OF_ADJACENTS];
     int number_of_adjacents = adjacents(adjacents_indices, old_cube);
+	long double energy_at_old_initial = caluclate_cube_list_energy(cubes,adjacents_indices, number_of_adjacents);
 
-	for(i = 0; i < number_of_adjacents; i++)
-		energy_at_old_initial = cubes[adjacents_indices[i]].energy;
 
-	long double energy_at_new_initial = 0.0;
-
-	for(i = 0; i < number_of_adjacents; i++)
-		energy_at_new_initial = cubes[adjacents_indices[i]].energy;
-	//////////////////////////////////////////////////////////////////
-
+	//store the initial information of the particle that will be moved
 	temp_x = cubes[old_cube].particles[index].x;
 	temp_y = cubes[old_cube].particles[index].y;
 	temp_z = cubes[old_cube].particles[index].z;
 
+	//remove the particle
 	remove_particle(&cubes[old_cube], index);
 
-	//create a new particle to be added to a random cube;
+	//create a new particle to be added to a random cube/////////////
 	particle temp;
 	
 	double x,y,z;
@@ -60,34 +57,38 @@ int perturb(cube * cubes)
 	//////////////////////////////////////////////////////////////////
 
 	
-
+	//recalulate the energy at the old cube location
 	for(i = 0; i < number_of_adjacents; i++)
 		calculate_cube_energy(cubes, adjacents_indices[i]);
 
-	/////////////////////////////////////////////////////////////////
-	long double energy_at_old_final = 0.0;
+	//get the final energy of the old cube location
+	long double energy_at_old_final = caluclate_cube_list_energy(cubes,adjacents_indices, number_of_adjacents);
 
-	for(i = 0; i < number_of_adjacents; i++)
-		energy_at_old_final = cubes[adjacents_indices[i]].energy;
-	/////////////////////////////////////////////////////////////////
+
+	//get the information for the new location	
 	adjacents_indices[MAX_NUMBER_OF_ADJACENTS];
     number_of_adjacents = adjacents(adjacents_indices, temp.myCube);
 
+	
+	//get the intitial energy at the new cube
+	long double energy_at_new_initial = caluclate_cube_list_energy(cubes,adjacents_indices, number_of_adjacents);
+
+	//recalculate the enrgy at the new cube
 	for(i = 0; i < number_of_adjacents; i++)
 		calculate_cube_energy(cubes, adjacents_indices[i]);
 
-	long double energy_at_new_final = 0.0;
-
-	for(i = 0; i < number_of_adjacents; i++)
-		energy_at_new_final = cubes[adjacents_indices[i]].energy;
-
+	//get the new energy of the new cube location
+	long double energy_at_new_final = caluclate_cube_list_energy(cubes,adjacents_indices, number_of_adjacents);;
 
 	
-
+	//get the new energy of the system
 	long double new_energy = old_energy + (energy_at_old_final - energy_at_old_initial) + (energy_at_new_final - energy_at_new_initial);
+
+	//calulate the probability of acceptance
 	double probability = compare_energies(old_energy,new_energy,TEMPERATURE);
 
-	if(probability > ACCEPTABLE_PROBABILITY)
+	//if not acceptable then revert the changes
+	if(probability < ACCEPTABLE_PROBABILITY)
 	{
 		particle temp;
 	
@@ -112,6 +113,8 @@ int perturb(cube * cubes)
 	
 
 }
+
+
 
 
 void remove_particle(cube * a_cube, int index)

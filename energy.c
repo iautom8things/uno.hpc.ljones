@@ -98,3 +98,15 @@ long double system_energy(cube * cubes)
 
 	return energy;
 }
+
+long double caluclate_cube_list_energy(cube* cubes, int * cube_numbers, int length){
+
+	int i;
+	long double energy = 0.0;
+
+	for(i = 0; i < length; i++)
+		energy = cubes[cube_numbers[i]].energy;
+
+	return energy;
+}
+

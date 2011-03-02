@@ -37,7 +37,7 @@ void copy_system(cube * temp_system,cube * cubes)
 int main(int argc, char** argv){
 
     int i, j; // iterators
-    srand(time(NULL)); // seed the random number generator
+    srand((unsigned)time(0)); // seed the random number generator
     double random_num = rand(); //get a random number
 
 
@@ -90,10 +90,6 @@ int main(int argc, char** argv){
         //printf("Particles: %d\n\n", cubes[i].number_of_particles);
     }
 
-    //print total energy of the system by summing the energy of the cubes
-    double total_energy = system_energy(cubes);
-
-    //printf("Total energy: %f \n\n", total_energy );
 
 	//start the simualtion
 	printf("Starting the simulation with %d\n", NUMBER_OF_TRIALS);
@@ -103,7 +99,7 @@ int main(int argc, char** argv){
 
 	while(i < NUMBER_OF_TRIALS)
 	{
-		double old_energy = system_energy(cubes);
+		long double old_energy = system_energy(cubes);
 		
 		if(perturb(cubes) == 1)
 		{
