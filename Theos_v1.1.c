@@ -54,7 +54,7 @@ const double E = 4;
 const double U = 0.2;
 const double S = 1;   
 const int C = 50;
-const int M = 10000;
+const long int M = 15000;
 const int N = 1000;
 const int den = 1;
 const int Debug = 100;
@@ -445,7 +445,8 @@ double perturb(ptPart box[C][C][C][2]){
  -----------------------------------------------------------------------------*/
 int main() {
     ptPart box [C][C][C][2];
-    int i, skip = 0;
+    long int i;
+    int skip = 0;
     double energy[M+1];
     srand((unsigned) time(NULL));
     clearBox(box);
