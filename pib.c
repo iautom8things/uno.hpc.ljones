@@ -97,15 +97,18 @@ int main(int argc, char** argv){
 	i = 0;//reset the iterator to use the while loop
 	int failures = 0;
 
+	FILE * file = fopen("data.csv","w");
+
 	while(i < NUMBER_OF_TRIALS)
 	{
 		long double old_energy = system_energy(cubes);
 		
 		if(perturb(cubes) == 1)
 		{
-			energies[i] = old_energy;			
+			fprintf(file,"Energy %4d,%Lf\n",i,old_energy);			
 			i++;
-			printf("successes: %d\n" , i);
+			printf("..");
+			//printf("successes: %d\n" , i);
 			//printf("old energy: %f\n", old_energy);
 			//printf("new energy: %f\n\n", system_energy(cubes));
 		}
@@ -113,9 +116,11 @@ int main(int argc, char** argv){
 			failures++;
 	}
 
-	for(i = 0; i < NUMBER_OF_TRIALS; i++)
-	  printf("energy %3d: %f\n" , i ,energies[i]);
+	fclose(file);
+	//for(i = 0; i < NUMBER_OF_TRIALS; i++)
+	//  printf("energy %3d: %f\n" , i ,energies[i]);
 
+	printf("\n");
 	printf("Successes: %d\n", i);
 	printf("Failures: %d\n" , failures);
 }

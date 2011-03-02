@@ -121,6 +121,8 @@ void remove_particle(cube * a_cube, int index)
 {
 	int length = a_cube->number_of_particles;
 
+	//particle * temp = (particle *)calloc(a_cube->number_of_particles);
+
 	int i; 
 	
 	for(i = index; i < length - 1; i++)

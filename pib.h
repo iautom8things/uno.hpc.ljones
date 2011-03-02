@@ -3,7 +3,7 @@
 #include <math.h>
 #include <time.h>
 
-#define NUMBER_OF_PARTICLES 1000 //number of particles in the system
+#define NUMBER_OF_PARTICLES 10000 //number of particles in the system
 #define SIZE 5 // This is the number of cubes on a axis of the box (5 = a 5x5x5 cube)
 #define LENGTH_OF_CUBE 10 //length of a cube in angstroms
 #define TOTAL_NUMBER_OF_CUBES SIZE*SIZE*SIZE //5x5x5 box = 125 cubes
