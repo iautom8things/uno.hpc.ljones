@@ -101,7 +101,7 @@ int perturb(cube * cubes)
 
 		addToCube(&cubes[old_cube], temp);
 		
-		remove_particle(&cubes[new_cube],cubes[new_cube].number_of_particles);
+		remove_particle(&cubes[new_cube],(cubes[new_cube].number_of_particles)-1);
 		//revert
 		return 0;
 		

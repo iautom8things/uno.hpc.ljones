@@ -49,7 +49,6 @@ void calculate_cube_energy(cube *cubes, int cube_index){
             energy_sum += 0.5 * calculate_pair_energy(distance(c->particles[i], adjacent_particles[j]));
         }
 	}
-
 	free(adjacent_particles);
     //assign the energy to this cube
     (*c).energy = energy_sum;

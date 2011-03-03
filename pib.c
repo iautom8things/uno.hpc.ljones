@@ -83,12 +83,20 @@ int main(int argc, char** argv){
 		
 		if(perturb(cubes) == 1)
 		{
-			fprintf(file,"Energy %4d,%Lf\n",i,old_energy);			
+			fprintf(file,"Energy\t%4d\t%Lf\n",i,old_energy);			
 			i++;
-			printf("..");
-			//printf("successes: %d\n" , i);
-			//printf("old energy: %f\n", old_energy);
-			//printf("new energy: %f\n\n", system_energy(cubes));
+            int tenth = NUMBER_OF_TRIALS/10;
+            printf("\r%4d | %3d%% [",i, (i/tenth)*10);
+            int j;
+            for (j=0;j<i/tenth;j++){
+                printf("-");
+            }
+            for (j=0;j<(10-i/tenth);j++){
+                printf(" ");
+            }
+            printf("] 100%%");
+            fflush(0);
+
 		}
 		else
 			failures++;

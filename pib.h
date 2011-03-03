@@ -8,7 +8,7 @@
 #define LENGTH_OF_CUBE 10 //length of a cube in angstroms
 #define TOTAL_NUMBER_OF_CUBES SIZE*SIZE*SIZE //5x5x5 box = 125 cubes
 #define MAX_NUMBER_OF_ADJACENTS 26
-#define NUMBER_OF_TRIALS 5
+#define NUMBER_OF_TRIALS 1000
 #define ACCEPTABLE_PROBABILITY .8
 #define TEMPERATURE 1000.0
 
