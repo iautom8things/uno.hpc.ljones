@@ -85,14 +85,16 @@ int main(int argc, char** argv){
 		{
 			fprintf(file,"Energy\t%4d\t%Lf\n",i,old_energy);			
 			i++;
-            int tenth = NUMBER_OF_TRIALS/10;
-            printf("\r%4d | %3d%% [",i, (i/tenth)*10);
+			
+			// Fancy-schmancy progress bar :)
+            int twentieth = NUMBER_OF_TRIALS/5;
+            printf("\r%7d | %3d%% [",i, (i/twentieth)*5);
             int j;
-            for (j=0;j<i/tenth;j++){
-                printf("-");
+            for (j=0;j<i/twentieth;j++){
+                printf("--");
             }
-            for (j=0;j<(10-i/tenth);j++){
-                printf(" ");
+            for (j=0;j<(20-i/twentieth);j++){
+                printf("  ");
             }
             printf("] 100%%");
             fflush(0);
