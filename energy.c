@@ -50,6 +50,7 @@ void calculate_cube_energy(cube *cubes, int cube_index){
         }
 	}
 
+	free(adjacent_particles);
     //assign the energy to this cube
     (*c).energy = energy_sum;
 }//end calculate_cube_energy

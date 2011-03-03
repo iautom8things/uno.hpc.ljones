@@ -15,7 +15,7 @@ int perturb(cube * cubes)
 		//printf("cube: %3d num %d\n", old_cube,cubes[old_cube].number_of_particles);
 	}while(cubes[old_cube].number_of_particles < 1);
 
-	int index = (int)rand() % cubes[old_cube].number_of_particles;
+	int index = ((rand())/(RAND_MAX+1.0))*cubes[old_cube].number_of_particles;
 	long double old_energy = system_energy(cubes);
 
  	
@@ -66,7 +66,7 @@ int perturb(cube * cubes)
 
 
 	//get the information for the new location	
-	adjacents_indices[MAX_NUMBER_OF_ADJACENTS];
+	//adjacents_indices[MAX_NUMBER_OF_ADJACENTS];
     number_of_adjacents = adjacents(adjacents_indices, temp.myCube);
 
 	
@@ -119,20 +119,24 @@ int perturb(cube * cubes)
 
 void remove_particle(cube * a_cube, int index)
 {
-	int length = a_cube->number_of_particles;
+	//swap the last particle for the one to be removed
+	a_cube->particles[index] = a_cube->particles[(a_cube->number_of_particles - 1)];
 
-	//particle * temp = (particle *)calloc(a_cube->number_of_particles);
-
-	int i; 
+	//expand a temporary array to hold the particles in a_cube minus one
+	particle * temp = (particle *)malloc(sizeof(particle) * (a_cube->number_of_particles - 1 ));
 	
-	for(i = index; i < length - 1; i++)
-	{
-		a_cube->particles[i] = a_cube->particles[i+1];
-	}
+	//copy the particles from a_cube to the new array
+	int i;
+	for(i = 0; i < (a_cube->number_of_particles - 1); i++)
+		temp[i] = a_cube->particles[i];
+
+	//free the old array
+	free(a_cube->particles);
+
+	//assign the new array to a_cube
+	a_cube->particles = temp;
 
 	(*a_cube).number_of_particles--;
-
-	a_cube->particles = (particle *)realloc(a_cube->particles , sizeof(particle)*a_cube->number_of_particles);
 }
 
 /**
@@ -153,20 +157,23 @@ particle* get_particles_from_cubes(int * neighbors, int num_neighbors, cube * cu
 	int totalParticles = 0;//the total number of particles in the system
 	int resultIndex = 0;//the index for the particle array that is returned
 	particle * result;//the particle array to be returned
-	result = (particle *)malloc(0);//initialize the array to zero elements
 
 	//go through each neighbor cube
 	for(i = 0; i < num_neighbors; i++)
 	{
-		cube * tempCube = &cubes[neighbors[i]];//get the first cube
-		totalParticles += (*tempCube).number_of_particles;//increase the total number of particles
-		result = (particle *)realloc(result , sizeof(particle)*totalParticles);//grow the array to hold the new particles
+		totalParticles += cubes[neighbors[i]].number_of_particles;//increase the total number of particles
+	}
 
+	result = (particle *)malloc(sizeof(particle)*totalParticles);
+
+	for(i = 0; i < num_neighbors; i++)
+	{	
+		cube temp = cubes[neighbors[i]];
 		//add the particles from each cube to the resulting array
-		for(j = 0; j < (*tempCube).number_of_particles; j++ )
+		for(j = 0; j < temp.number_of_particles; j++ )
 		{
-			result[resultIndex] = tempCube->particles[j];
-			resultIndex ++;
+			result[resultIndex] = temp.particles[j];
+			resultIndex++;
 		}
 	}
 

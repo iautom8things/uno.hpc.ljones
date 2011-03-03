@@ -8,8 +8,8 @@
 #define LENGTH_OF_CUBE 10 //length of a cube in angstroms
 #define TOTAL_NUMBER_OF_CUBES SIZE*SIZE*SIZE //5x5x5 box = 125 cubes
 #define MAX_NUMBER_OF_ADJACENTS 26
-#define NUMBER_OF_TRIALS 100
-#define ACCEPTABLE_PROBABILITY .7
+#define NUMBER_OF_TRIALS 5
+#define ACCEPTABLE_PROBABILITY .8
 #define TEMPERATURE 1000.0
 
 typedef struct{
@@ -24,6 +24,9 @@ typedef struct{
 	int number_of_particles; // The number of particles in the cube
 	long double energy; //the total energy of the cube
 } cube;
+
+//Found in pib.c
+void clean();
 
 //Found in adjacents.c
 particle* get_particles_from_cubes(int * neighbors, int num_neighbors, cube * cubes, int * total_particles);

@@ -1,28 +1,6 @@
 #include "pib.h"
 
 
-void copy_system(cube * temp_system,cube * cubes)
-{
-	int i,j;
-
-	for(i = 0; i < TOTAL_NUMBER_OF_CUBES; i++){
-
-		temp_system[i].number_of_particles = cubes[i].number_of_particles;
-		temp_system[i].energy = cubes[i].energy;
-		
-		//free(temp_system[i].particles);
-		temp_system[i].particles = (particle *)malloc(sizeof(particle)*cubes[i].number_of_particles);
-
-		for (j = 0; j < cubes[i].number_of_particles; j++){
-			temp_system[i].particles[j].x = cubes[i].particles[j].x;
-			temp_system[i].particles[j].x = cubes[i].particles[j].x;
-			temp_system[i].particles[j].x = cubes[i].particles[j].x;
-			temp_system[i].particles[j].myCube = cubes[i].particles[j].myCube;
-		}
-	}
-	
-}
-
 /**
  * This main is used to test the progress of the solution to the
  * Lennard-Jones Problem.
@@ -36,16 +14,16 @@ void copy_system(cube * temp_system,cube * cubes)
 
 int main(int argc, char** argv){
 
-    int i, j; // iterators
+    int i; // iterators
     srand((unsigned)time(0)); // seed the random number generator
     double random_num = rand(); //get a random number
 
 
-	double energies[NUMBER_OF_TRIALS];//store accepted energies
+	//double energies[NUMBER_OF_TRIALS];//store accepted energies
     cube cubes[TOTAL_NUMBER_OF_CUBES]; // allocate an array for our cubes
 
     //initalize the cubes in the array
-    for(i=0;i<TOTAL_NUMBER_OF_CUBES;i++){cubes[i].particles[j].x;
+    for(i=0;i<TOTAL_NUMBER_OF_CUBES;i++){
         cubes[i].number_of_particles = 0;
         cubes[i].energy = 0;
         cubes[i].particles = (particle *)malloc(0);
@@ -123,5 +101,17 @@ int main(int argc, char** argv){
 	printf("\n");
 	printf("Successes: %d\n", i);
 	printf("Failures: %d\n" , failures);
+
+	clean(cubes);
+
+	return 1;
+}
+
+void clean(cube * cubes)
+{
+	int i;
+
+	for(i = 0; i < TOTAL_NUMBER_OF_CUBES; i++)
+		free(cubes[i].particles);
 }
 
