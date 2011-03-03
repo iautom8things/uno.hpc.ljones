@@ -87,7 +87,7 @@ int main(int argc, char** argv){
 			i++;
 			
 			// Fancy-schmancy progress bar :)
-            int twentieth = NUMBER_OF_TRIALS/5;
+            int twentieth = NUMBER_OF_TRIALS/20;
             printf("\r%7d | %3d%% [",i, (i/twentieth)*5);
             int j;
             for (j=0;j<i/twentieth;j++){
