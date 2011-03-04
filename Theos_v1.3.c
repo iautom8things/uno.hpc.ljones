@@ -45,7 +45,7 @@
  * (which is the current setting of the system for steps per cycle). So these
  * tiny tiny differences you see in the result are actually the accumilative
  * differences after 100 steps at a time. That is, the actually margin of error
- * is even much smaller. So, it's "pretty" precise enough, yes?
+ * is even much smaller. So, it's "pretty" precise, yes?
  *
  *******************************************************************************
  * New in v1.31 (3/3/11):
