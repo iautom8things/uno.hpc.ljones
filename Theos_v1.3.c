@@ -1,8 +1,8 @@
 /*
  * @author: Nam Truong (Theo)
  * @email: chocobos8687@gmail.com or nhtruong@uno.edu
- * @Start date: 03-01-2011;
- * @Current version: 1.30 (3/3/11)
+ * @Start date: 03/01/2011;
+ * @Current version: 1.31 (3/3/11)
  *
  * WARNING! The program uses long double datatype. Some machines in the computer
  * lab can't handle/display this datatype correctly.
@@ -10,9 +10,11 @@
  * NOTE_1: The program might appear to run slower over time. However, this is due
  * to the fact that as the system approaches its equilibrium, it becomes harder
  * to perturb. The program will have to try to move a particle more times
- * than at the begining of the simulation.
+ * than at the begining of the simulation. If you set M = 100,000 or more, it
+ * might take hours for the program to complete but the result should be
+ * a state of energy that is very close to the perfect equilibrium.
  *
- * NOTE_2: The PNR index displayed at the end of each line of this program is
+ * NOTE_2: The PNR index displayed at the end of each line on the screen is
  * comprised of 3 numbers: accepted positive dE, accepted negative dE and
  * rejected dE of the cycle. You will notice that the number of rejected dE per
  * cycle grows exponentially large over time. This proves that an appropriate dE
@@ -20,13 +22,35 @@
  * therefore, take longer to complete.
  *
  * NOTE_3: For the current setting (Cube Length L = 10), you will notice that
- * the system NEVER accepts any positive dE. Even if you set L = 800, the number
- * of accepted positive dE(s) only account for a few percents of the total number
+ * the system NEVER accepts any positive dE. Even if you set L = 8000, the number
+ * of accepted positive dE(s) only account for less then 1% of the total number
  * of dE(s) accepted.
  *
+ * NOTE_4: The initEng() function calculates the total energy by definition (i.e
+ * it's no shortcut) and is the only way to calculate the initial energy.
+ * It calculates the total energy by adding up the energy of every possible pair
+ * in the box. Though it could be used to calculate the new total energy after
+ * a particle is moved, there is a shortcut that I can prove to be equally precise
+ * but tens of thousands of times more effecient. Since I've already discussed
+ * this shortcut with most of you before, and we all can agree that if it actually
+ * works, the shortcut will significantly improve the system's perforamce. All
+ * we have to do is show that it does work.
+ * 
+ * To do this, we must show that the difference is negligible:
+ * Uncomment the commented line of code inside the for loop of the main function.
+ * Now the new total energy will be calculated twice after each cycle: one using
+ * the shortcut and one using the definition. You should notice that the
+ * differences between the two sets of result is just one over a trillion of a
+ * unit of energy (due to rounding). Moveover, each cycle is equal to 100 moves
+ * (which is the current setting of the system for steps per cycle). So these
+ * tiny tiny differences you see in the result are actually the accumilative
+ * differences after 100 steps at a time. That is, the actually margin of error
+ * is even much smaller. So, it's "pretty" precise enough, yes?
+ *
  *******************************************************************************
- * New in v1.30 (3/3/11):
+ * New in v1.31 (3/3/11):
  * _ Memory leak in perturb() fixed.
+ * _ Sigma's and Epilon's values were swapped. Now corrected
  * _ More optimization in perturb() for Density and Probability calculations
  * _ Energy variables are now long double to be able to track very small changes
  *   in total energy.
@@ -67,13 +91,13 @@ typedef Part *ptPart; // alias for pointers to Particles
 
 //* Below are constants from the problem description. They should not be changed
 const long double K = 1.38; // Boltzmann’s constant
-const long double E = 4;    // Epsilon
-const long double S = 0.2;  // Sigma
+const long double E = 0.2;  // Epsilon
+const long double S = 4;    // Sigma
 
 //* Below are constatns that define the system's settings
 const long double T = 45000;// Temperature
 const long double P = 0.8;  // Acceptance Probability
-const long double L = 10;  // Length of a cube in Angstrom
+const long double L = 10;   // Length of a cube in Angstrom
 const int         C = 5;    // Cubes per dimention
 const long int    M = 5000; // Number of Moves
 const long int    N = 1000; // Number of Particles
@@ -392,10 +416,10 @@ total Energy dE. It then returns this dE.Here's what the function does:
 7. Calculate the energy contributed by the new particle
 8. Add it to dE (energy gained)
 9. Check for probability based on dE
-10. If P >= 1, add the new particle to the end of the new cube. Else add the old
-particle to the end of the old cube
-(This ensures that a particle will have less chance to be selected again if
-it has been moved recently. Its chance increases as time goes by)
+10. If P is accepted add the new particle to the end of the new cube. Else add
+    the old particle to the end of the old cube
+    (This ensures that a particle will have less chances to be selected again if
+    it has been moved recently. Generally, its chance increases over time).
 -----------------------------------------------------------------------------*/
 long double perturb(ptPart box[C][C][C][2]){
     ptPart related[26], old, new;
@@ -486,18 +510,20 @@ int main() {
     srand((unsigned) time(NULL));
     clearBox(box);
     initBox(box);
+    printf("\n\tA NEW BOX HAS BEEN CREATED AND FILLED WITH %d PARTICLES\n\n", N);
     //printf("\n Total particles: %d", disBox(box)); //enable this line to debug
     energy[0] = initEng(box);
-    printf("\n Ini E = %3.15Lf\t MAX +dE accepted: %.3LG\n\n", energy[0], MAX);
+    printf("\n Ini E = %36.20Lf   MAX +dE accepted:  %.3LG\n\n", energy[0], MAX);
     
     for(i = 1; i < M+1; i++) {
         energy[i] = energy[i-1] + perturb(box);
         if(++step == Cycle) {
-            printf(" New E = %3.15Lf\t i = %4d", energy[i],i);
-            //printf("\t\n New E =  %3.15Lf \n", initEng(box));
+            printf(" New E = %36.20Lf   i = %4d", energy[i],i);
+            printf("   PNR:%2d - %3d - %d\n", posiAcpt, negaAcpt, rejected);
+
+            //printf(" New E*= %36.20Lf\n\n", initEng(box));
             //enable the above line to compare the result of two different methods
             //of calculating the new total energy.
-            printf("  PNR:%2d - %3d - %d\n", posiAcpt, negaAcpt, rejected);
 
             step = negaAcpt = rejected = posiAcpt = 0;
         }
