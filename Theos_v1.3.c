@@ -31,9 +31,9 @@
  * It calculates the total energy by adding up the energy of every possible pair
  * in the box. Though it could be used to calculate the new total energy after
  * a particle is moved, there is a shortcut that I can prove to be equally precise
- * but tens of thousands of times more effecient. Since I've already discussed
+ * but tens of thousands of times more efficient. Since I've already discussed
  * this shortcut with most of you before, and we all can agree that if it actually
- * works, the shortcut will significantly improve the system's perforamce. All
+ * works, the shortcut will significantly improve the system's performance. All
  * we have to do is show that it does work.
  * 
  * To do this, we must show that the difference is negligible:
@@ -41,9 +41,9 @@
  * Now the new total energy will be calculated twice after each cycle: one using
  * the shortcut and one using the definition. You should notice that the
  * differences between the two sets of result is just one over a trillion of a
- * unit of energy (due to rounding). Moveover, each cycle is equal to 100 moves
+ * unit of energy (due to rounding). Moreover, each cycle is equal to 100 moves
  * (which is the current setting of the system for steps per cycle). So these
- * tiny tiny differences you see in the result are actually the accumilative
+ * tiny tiny differences you see in the result are actually the accumulative
  * differences after 100 steps at a time. That is, the actually margin of error
  * is even much smaller. So, it's "pretty" precise, yes?
  *
@@ -94,11 +94,11 @@ const long double K = 1.38; // Boltzmann’s constant
 const long double E = 0.2;  // Epsilon
 const long double S = 4;    // Sigma
 
-//* Below are constatns that define the system's settings
+//* Below are constants that define the system's settings
 const long double T = 45000;// Temperature
 const long double P = 0.8;  // Acceptance Probability
 const long double L = 10;   // Length of a cube in Angstrom
-const int         C = 5;    // Cubes per dimention
+const int         C = 5;    // Cubes per dimension
 const long int    M = 5000; // Number of Moves
 const long int    N = 1000; // Number of Particles
 const int      High = 5;    // Definition of high density
