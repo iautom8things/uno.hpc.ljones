@@ -6,16 +6,62 @@
  * Lennard-Jones Problem.
  *
  * Code is being worked on by Manuel Zubieta, Daniel Ward, and Aaron Maus
+ *
+ * This program now takes arguments as follows
+ * required:
+ * -temp THE TEMPERATUR IN KELVIN
+ * -trials THE NUMBER OF TRIALS
+ * -seed THE SEED FOR THE RANDOM NUMBER GENERATOR
+ * optional:
+ * -o THE OUTPUT FILE NAME
  */
-
-/**
- * Still need to perturb a particle and calulate the energy difference
- */
-
 int main(int argc, char** argv){
 
-    int i; // iterators
-    srand((unsigned)time(0)); // seed the random number generator
+    int seed;//seed for the random number generator
+    char * output_file = "data.csv";//the default output file name
+
+
+    ///////////   THIS IS FOR YOU DR. SUMMA  //////////////////////
+    ///////////         ARGUMENTS            //////////////////////
+    int i;
+    int arguments_found = 0;
+
+    for(i = 0; i < argc; i++){
+
+        if(strcmp(argv[i],"-temp") == 0)
+        {
+                TEMPERATURE = atoi(argv[i+1]);
+                arguments_found++;
+        }
+        if(strcmp(argv[i],"-trials") == 0)
+        {
+                NUMBER_OF_TRIALS = atoi(argv[i+1]);
+                arguments_found++;
+        }
+        if(strcmp(argv[i],"-seed") == 0)
+        {
+                seed = atoi(argv[i+1]);
+                arguments_found++;
+        }
+        if(strcmp(argv[i],"-o") == 0)
+        {
+                output_file = argv[i+1];
+        }
+    }
+
+    if(arguments_found != 3)
+    {
+        printf("Invalid arguments!!!!!\n");
+        printf("Please enter the arguments\n");
+        printf("-temp TEMP\n");
+        printf("-trials NUMBER OF TRIALS\n");
+        printf("-seed THE SEED FOR THE RANDOM NUMBEWR GENERATOR\n");
+        exit(0);
+    }
+
+    /////////  END ARGUMENTS /////////////////////////////////
+		
+    srand(seed); // seed the random number generator
     double random_num = rand(); //get a random number
 
 
@@ -62,66 +108,82 @@ int main(int argc, char** argv){
     for(i=0; i< TOTAL_NUMBER_OF_CUBES; i++){
 
         calculate_cube_energy(cubes, i);
-		//print the cube information
-        //printf("Cube %d:\n" , i);
-        //printf("Energy: %f\n" , cubes[i].energy);
-        //printf("Particles: %d\n\n", cubes[i].number_of_particles);
     }
 
 
-	//start the simualtion
-	printf("Starting the simulation with %d\n", NUMBER_OF_TRIALS);
+    //start the simualtion
+    printf("Starting the simulation with %d\n trials", NUMBER_OF_TRIALS);
 
-	i = 0;//reset the iterator to use the while loop
-	int failures = 0;
+    i = 0;//reset the iterator to use the while loop
+    int unaccepted = 0;
+	int accepted = 0;
 
-	FILE * file = fopen("data.csv","w");
+    //open a file to save the energies, this makes it easier to graph
+    FILE * file = fopen(output_file,"w");
 
-	while(i < NUMBER_OF_TRIALS)
-	{
-		long double old_energy = system_energy(cubes);
-		
-		if(perturb(cubes) == 1)
-		{
-			fprintf(file,"Energy\t%4d\t%Lf\n",i,old_energy);			
-			i++;
-			
-			// Fancy-schmancy progress bar :)
+    //do until we have the number of successes we are looking for
+    while(i < NUMBER_OF_TRIALS)
+    {
+            //the energy of the current state of the cube
+        long double old_energy = system_energy(cubes);
+
+        //if the perturb creates an acceptable state then save the energy
+        if(perturb(cubes) == 1)
+        {
+            //write the energy to file
+            fprintf(file,"Energy\t%4d\t%Lf\n",i,old_energy);
+
+            accepted++;
+
+            /////////// Fancy-schmancy progress bar :)
             int twentieth = NUMBER_OF_TRIALS/20;
             printf("\r%7d | %3d%% [",i, (i/twentieth)*5);
             int j;
             for (j=0;j<i/twentieth;j++){
                 printf("--");
             }
+
             for (j=0;j<(20-i/twentieth);j++){
                 printf("  ");
             }
             printf("] 100%%");
             fflush(0);
+            /////////// End fancy-schmancy progress bar
 
-		}
-		else
-			failures++;
-	}
+        }//end if
 
-	fclose(file);
-	//for(i = 0; i < NUMBER_OF_TRIALS; i++)
-	//  printf("energy %3d: %f\n" , i ,energies[i]);
+        else
+            unaccepted++;//if not an acceptable state then increment the counter
 
-	printf("\n");
-	printf("Successes: %d\n", i);
-	printf("Failures: %d\n" , failures);
+        i++;//move the iterator
+    }//end while
 
-	clean(cubes);
+    //close the file
+    fclose(file);
 
-	return 1;
-}
+    //print the successes and the failures
+    printf("\n");
+    printf("Accepted States: %d\n", accepted);
+    printf("Unaccepted States: %d\n" , unaccepted);
 
+    //do some clean up
+    clean(cubes);
+
+    return 1;
+}//end main
+
+/**
+ * Frees the allocated memory in the given cubes
+ *
+ * @param cubes The cubes that need to be cleaned
+ * @author Daniel Ward
+ */
 void clean(cube * cubes)
 {
-	int i;
+    int i;//iterator
 
-	for(i = 0; i < TOTAL_NUMBER_OF_CUBES; i++)
-		free(cubes[i].particles);
-}
+    //free the allocated memory for the particles
+    for(i = 0; i < TOTAL_NUMBER_OF_CUBES; i++)
+            free(cubes[i].particles);
+}//end clean
 

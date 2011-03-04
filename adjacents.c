@@ -1,43 +1,47 @@
 #include "pib.h"
 
 
-
+/**
+ *
+ * @param cubes The set cubes that need to be perturb
+ * @return 1 if the new state is acceptable, else 0
+ * @author Daniel Ward
+ */
 int perturb(cube * cubes)
 {
-	int i; //iterator
-	double temp_x, temp_y, temp_z; //used to store the coordinates of the destroyed particles
-	int new_cube; //the new cube number for the particle
-	int old_cube; //the old cube number for the particle
-	
+    int i; //iterator
+    double temp_x, temp_y, temp_z; //used to store the coordinates of the destroyed particles
+    int new_cube; //the new cube number for the particle
+    int old_cube; //the old cube number for the particle
 
-	do{
-		old_cube = ((rand())/(RAND_MAX+1.0))*TOTAL_NUMBER_OF_CUBES;
-		//printf("cube: %3d num %d\n", old_cube,cubes[old_cube].number_of_particles);
-	}while(cubes[old_cube].number_of_particles < 1);
+    //ensure we do not select an empty cube
+    do{
+        old_cube = ((rand())/(RAND_MAX+1.0))*TOTAL_NUMBER_OF_CUBES;
+    }while(cubes[old_cube].number_of_particles < 1);
 
-	int index = ((rand())/(RAND_MAX+1.0))*cubes[old_cube].number_of_particles;
-	long double old_energy = system_energy(cubes);
+    int index = ((rand())/(RAND_MAX+1.0))*cubes[old_cube].number_of_particles;
+    long double old_energy = system_energy(cubes);
 
- 	
-	//get the intitial energy at the old cube
-	int adjacents_indices[MAX_NUMBER_OF_ADJACENTS];
+
+    //get the intitial energy at the old cube
+    int adjacents_indices[MAX_NUMBER_OF_ADJACENTS];
     int number_of_adjacents = adjacents(adjacents_indices, old_cube);
-	long double energy_at_old_initial = caluclate_cube_list_energy(cubes,adjacents_indices, number_of_adjacents);
+    long double energy_at_old_initial = calculate_cube_list_energy(cubes,adjacents_indices, number_of_adjacents);
 
 
-	//store the initial information of the particle that will be moved
-	temp_x = cubes[old_cube].particles[index].x;
-	temp_y = cubes[old_cube].particles[index].y;
-	temp_z = cubes[old_cube].particles[index].z;
+    //store the initial information of the particle that will be moved
+    temp_x = cubes[old_cube].particles[index].x;
+    temp_y = cubes[old_cube].particles[index].y;
+    temp_z = cubes[old_cube].particles[index].z;
 
-	//remove the particle
-	remove_particle(&cubes[old_cube], index);
+    //remove the particle
+    remove_particle(&cubes[old_cube], index);
 
-	//create a new particle to be added to a random cube/////////////
-	particle temp;
-	
-	double x,y,z;
-	double random_num = rand();
+    //create a new particle to be added to a random cube/////////////
+    particle temp;
+
+    double x,y,z;
+    double random_num = rand();
     x = SIZE*LENGTH_OF_CUBE*((random_num)/(RAND_MAX+1.0));
     temp.x = x;
 
@@ -54,90 +58,94 @@ int perturb(cube * cubes)
 	new_cube = temp.myCube;
 
     addToCube(&cubes[temp.myCube], temp);
-	//////////////////////////////////////////////////////////////////
+    //Done create a new particle
 
 	
-	//recalulate the energy at the old cube location
-	for(i = 0; i < number_of_adjacents; i++)
-		calculate_cube_energy(cubes, adjacents_indices[i]);
+    //recalulate the energy at the old cube location
+    for(i = 0; i < number_of_adjacents; i++)
+            calculate_cube_energy(cubes, adjacents_indices[i]);
 
-	//get the final energy of the old cube location
-	long double energy_at_old_final = caluclate_cube_list_energy(cubes,adjacents_indices, number_of_adjacents);
+    //get the final energy of the old cube location
+    long double energy_at_old_final = calculate_cube_list_energy(cubes,adjacents_indices, number_of_adjacents);
 
 
-	//get the information for the new location	
-	//adjacents_indices[MAX_NUMBER_OF_ADJACENTS];
+    //get the information for the new location
+    //adjacents_indices[MAX_NUMBER_OF_ADJACENTS];
     number_of_adjacents = adjacents(adjacents_indices, temp.myCube);
 
 	
-	//get the intitial energy at the new cube
-	long double energy_at_new_initial = caluclate_cube_list_energy(cubes,adjacents_indices, number_of_adjacents);
+    //get the intitial energy at the new cube
+    long double energy_at_new_initial = calculate_cube_list_energy(cubes,adjacents_indices, number_of_adjacents);
 
-	//recalculate the enrgy at the new cube
-	for(i = 0; i < number_of_adjacents; i++)
-		calculate_cube_energy(cubes, adjacents_indices[i]);
+    //recalculate the enrgy at the new cube
+    for(i = 0; i < number_of_adjacents; i++)
+            calculate_cube_energy(cubes, adjacents_indices[i]);
 
-	//get the new energy of the new cube location
-	long double energy_at_new_final = caluclate_cube_list_energy(cubes,adjacents_indices, number_of_adjacents);;
+    //get the new energy of the new cube location
+    long double energy_at_new_final = calculate_cube_list_energy(cubes,adjacents_indices, number_of_adjacents);;
+
+
+    //get the new energy of the system
+    long double new_energy = old_energy + (energy_at_old_final - energy_at_old_initial) + (energy_at_new_final - energy_at_new_initial);
+
+    //calulate the probability of acceptance
+    double probability = compare_energies(old_energy,new_energy,TEMPERATURE);
 
 	
-	//get the new energy of the system
-	long double new_energy = old_energy + (energy_at_old_final - energy_at_old_initial) + (energy_at_new_final - energy_at_new_initial);
+    //if not acceptable then revert the changes
+    //use a random acceptance level
+    //MONTE CARLO THAT THANG
+    if( ((rand())/(RAND_MAX+1.0)) > probability)
+    {
+        particle temp;
 
-	//calulate the probability of acceptance
-	double probability = compare_energies(old_energy,new_energy,TEMPERATURE);
 
-	//if not acceptable then revert the changes
-	if(probability < ACCEPTABLE_PROBABILITY)
-	{
-		particle temp;
-	
+        temp.x = temp_x;
+        temp.y = temp_y;
+        temp.z = temp_z;
+
+        temp.myCube = old_cube;
+
+        addToCube(&cubes[old_cube], temp);
+
+        remove_particle(&cubes[new_cube],(cubes[new_cube].number_of_particles)-1);
+        //revert
+        return 0;
 		
-		temp.x = temp_x;
-		temp.y = temp_y;
-		temp.z = temp_z;
+    }
+    else
+        return 1;
 
-		temp.myCube = old_cube;
+}//end perturb
 
-		addToCube(&cubes[old_cube], temp);
-		
-		remove_particle(&cubes[new_cube],(cubes[new_cube].number_of_particles)-1);
-		//revert
-		return 0;
-		
-	}
-	else
-	{
-		return 1;
-	}
-	
-
-}
-
-
-
-
+/**
+ * Remove a particle from the cube at the given index
+ * @param a_cube The cube to be altered
+ * @param index The index of the particle in the cube
+ * @author Daniel Ward
+ */
 void remove_particle(cube * a_cube, int index)
 {
-	//swap the last particle for the one to be removed
-	a_cube->particles[index] = a_cube->particles[(a_cube->number_of_particles - 1)];
+    //swap the last particle for the one to be removed
+    a_cube->particles[index] = a_cube->particles[(a_cube->number_of_particles - 1)];
 
-	//expand a temporary array to hold the particles in a_cube minus one
-	particle * temp = (particle *)malloc(sizeof(particle) * (a_cube->number_of_particles - 1 ));
-	
-	//copy the particles from a_cube to the new array
-	int i;
-	for(i = 0; i < (a_cube->number_of_particles - 1); i++)
-		temp[i] = a_cube->particles[i];
+    //expand a temporary array to hold the particles in a_cube minus one
+    particle * temp = (particle *)malloc(sizeof(particle) * (a_cube->number_of_particles - 1 ));
 
-	//free the old array
-	free(a_cube->particles);
+    //copy the particles from a_cube to the new array
+    int i;
+    for(i = 0; i < (a_cube->number_of_particles - 1); i++)
+            temp[i] = a_cube->particles[i];
 
-	//assign the new array to a_cube
-	a_cube->particles = temp;
+    //free the old array
+    free(a_cube->particles);
 
-	(*a_cube).number_of_particles--;
-}
+    //assign the new array to a_cube
+    a_cube->particles = temp;
+
+    //reduce the number_of_particles counter
+    (*a_cube).number_of_particles--;
+}//end remove_particle
 
 /**
  * This will get the particles in the cubes that are in the
@@ -153,35 +161,39 @@ void remove_particle(cube * a_cube, int index)
  */
 particle* get_particles_from_cubes(int * neighbors, int num_neighbors, cube * cubes, int * total_particles)
 {
-	int i, j;//iterators
-	int totalParticles = 0;//the total number of particles in the system
-	int resultIndex = 0;//the index for the particle array that is returned
-	particle * result;//the particle array to be returned
+    int i, j;//iterators
+    int totalParticles = 0;//the total number of particles in the system
+    int resultIndex = 0;//the index for the particle array that is returned
+    particle * result;//the particle array to be returned
 
-	//go through each neighbor cube
-	for(i = 0; i < num_neighbors; i++)
-	{
-		totalParticles += cubes[neighbors[i]].number_of_particles;//increase the total number of particles
-	}
+    //go through each neighbor cube to count the particles
+    for(i = 0; i < num_neighbors; i++)
+    {
+        totalParticles += cubes[neighbors[i]].number_of_particles;//increase the total number of particles
+    }
 
-	result = (particle *)malloc(sizeof(particle)*totalParticles);
+    //create a new array for the particles
+    result = (particle *)malloc(sizeof(particle)*totalParticles);
 
-	for(i = 0; i < num_neighbors; i++)
-	{	
-		cube temp = cubes[neighbors[i]];
-		//add the particles from each cube to the resulting array
-		for(j = 0; j < temp.number_of_particles; j++ )
-		{
-			result[resultIndex] = temp.particles[j];
-			resultIndex++;
-		}
-	}
+    //go through each neighbor cube to get the particles
+    for(i = 0; i < num_neighbors; i++)
+    {
+        //create a temporary reference  to the current cube
+        cube temp = cubes[neighbors[i]];
 
-	//set the total number of particles
-	*total_particles = totalParticles;
+        //add the particles from each cube to the resulting array
+        for(j = 0; j < temp.number_of_particles; j++ )
+        {
+            result[resultIndex] = temp.particles[j];
+            resultIndex++;//move the result array index
+        }
+    }
 
-        //return the array of particles
-	return result;
+    //set the total number of particles
+    *total_particles = totalParticles;
+
+    //return the array of particles
+    return result;
 }//end get_particles_from_cubes
 
 /**
@@ -213,12 +225,11 @@ unsigned char in_bounds(int row, int column, int height){
  * @param y The y coordinate of the particle
  * @param z The z coordinate of the particle
  * @return The cube number that the particle belongs to
- * @author ????
+ * @author Manuel Zubieta
  */
 int belongs_to_cube(double x, double y, double z){
 
     return ((x) * SIZE) + (y) + ( (z) *(SIZE*SIZE));
-	//return (int)( floor(x) / LENGTH_OF_CUBE) + ( floor(y)/LENGTH_OF_CUBE) + ((floor(z)/LENGTH_OF_CUBE) * (SIZE*SIZE));
 }
 
 /**

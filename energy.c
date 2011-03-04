@@ -34,22 +34,25 @@ void calculate_cube_energy(cube *cubes, int cube_index){
         // compare it with all the other particles in this cube w/o repeats
         for (j = i; j < n; j++)
         {
-			if(distance(c->particles[i], c->particles[j]) != 0)
-            	energy_sum += calculate_pair_energy(distance(c->particles[i], c->particles[j]));
+            if(distance(c->particles[i], c->particles[j]) != 0)
+                energy_sum += calculate_pair_energy(distance(c->particles[i], c->particles[j]));
         }
 
-        
+
     }
 
-	for(i = 0; i < n ; i++)
-	{
-		//compare the ith particle in this cube to the particles in the adjacent cubes
+    for(i = 0; i < n ; i++)
+    {
+        //compare the ith particle in this cube to the particles in the adjacent cubes
         for (j = 0; j < number_of_adjacent_particles; j++)
         {
+            //to avoid extra energy, particles outside of this cube have half the energy
             energy_sum += 0.5 * calculate_pair_energy(distance(c->particles[i], adjacent_particles[j]));
         }
-	}
-	free(adjacent_particles);
+    }
+
+    //free the allocated array
+    free(adjacent_particles);
     //assign the energy to this cube
     (*c).energy = energy_sum;
 }//end calculate_cube_energy
@@ -73,40 +76,67 @@ long double calculate_pair_energy(double distance){
     if (distance > 10)
         return 0;
 
+    //if distance s less than the minimum accepted threshold
+    if(distance < MIN_DISTANCE)
+        return 0;
+        
+
     //if >+=to 10 angtroms the, calulate the enregy of the pair
     return (4*epsilon)*(pow((sigma/distance), 12) - pow((sigma/distance),6));
-}
+}//end calculate_pair_energy
 
-// return the probablilty of acceptance
-double compare_energies(long double energy_a, long double energy_b, double temperature)
+/**
+ * Compare to system energues and return the probability of acceptance
+ *
+ * @param energy_a Energy of the old state
+ * @param energy_b Energy of the new state
+ * @param temperature The temperature of the system
+ * @return The probablity fo acceptance of the new energy
+ * @author Daniel Ward
+ */
+double compare_energies(long double old_energy, long double new_energy, double temperature)
 {
-	double boltzmann = 1.38 * pow(10,-23);
+    long double boltzmann = 1.38 * pow(10,-23);
 
-	if(energy_b <= energy_a)
-		return 1.0;
-	else
-		return exp(-1 * (energy_b - energy_a)/(boltzmann*temperature));
-}
+    if(new_energy <= old_energy)
+        return 1.0;
+    else
+        return exp(-1 * (new_energy - old_energy)/(boltzmann*temperature));
+}//end compare_energies
 
+/**
+ * Combines all the enrgies in the given cubes
+ * @param cubes The cubes that you want to sum up the enregies from
+ * @return The total energy of the given cubes
+ * @author Daniel Ward
+ */
 long double system_energy(cube * cubes)
 {
-	int i;
-	long double energy = 0.0;
+    int i;
+    long double energy = 0.0;
 
-	for(i = 0; i < TOTAL_NUMBER_OF_CUBES; i++)
-		energy += cubes[i].energy;
+    for(i = 0; i < TOTAL_NUMBER_OF_CUBES; i++)
+        energy += cubes[i].energy;
 
-	return energy;
-}
+    return energy;
+}//end system_energy
 
-long double caluclate_cube_list_energy(cube* cubes, int * cube_numbers, int length){
+/**
+ * Caluclate the energy of the cubes in the given list of cube numbers
+ * @param cubes The array of cubes
+ * @param cube_numbers THe array of cube numbers that you want to calculate
+ * @param length The number of cubes that you are going to calculate
+ * @return The sum of the enrgey of the cubes
+ * @author Daniel Ward
+ */
+long double calculate_cube_list_energy(cube* cubes, int * cube_numbers, int length){
 
-	int i;
-	long double energy = 0.0;
+    int i;
+    long double energy = 0.0;
 
-	for(i = 0; i < length; i++)
-		energy = cubes[cube_numbers[i]].energy;
+    for(i = 0; i < length; i++)
+            energy = cubes[cube_numbers[i]].energy;
 
-	return energy;
-}
+    return energy;
+}//end calculate_cube_list_energy
 
