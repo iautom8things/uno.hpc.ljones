@@ -35,7 +35,7 @@
  * this shortcut with most of you before, and we all can agree that if it actually
  * works, the shortcut will significantly improve the system's performance. All
  * we have to do is show that it does work.
- * 
+ *
  * To do this, we must show that the difference is negligible:
  * Uncomment the commented line of code inside the for loop of the main function.
  * Now the new total energy will be calculated twice after each cycle: one using
@@ -55,7 +55,7 @@
  * _ Energy variables are now long double to be able to track very small changes
  *   in total energy.
  * _ Three new variables are introduced. They are not used to debug but rather
- *   to demonstrate why the system slows down over time, and why positive 
+ *   to demonstrate why the system slows down over time, and why positive
  *   changes in total energy are of little help in this simulation.
  *
  *******************************************************************************
@@ -513,13 +513,13 @@ int main() {
     printf("\n\tA NEW BOX HAS BEEN CREATED AND FILLED WITH %d PARTICLES\n\n", N);
     //printf("\n Total particles: %d", disBox(box)); //enable this line to debug
     energy[0] = initEng(box);
-    printf("\n Ini E = %36.20Lf   MAX +dE accepted:  %.3LG\n\n", energy[0], MAX);
-    
+    printf("\n Ini E = %36.20Lf  MAX +dE accepted:  %.3LG\n\n", energy[0], MAX);
+
     for(i = 1; i < M+1; i++) {
         energy[i] = energy[i-1] + perturb(box);
         if(++step == Cycle) {
-            printf(" New E = %36.20Lf   i = %4d", energy[i],i);
-            printf("   PNR:%2d - %3d - %d\n", posiAcpt, negaAcpt, rejected);
+            printf(" New E = %36.20Lf  i = %4d", energy[i],i);
+            printf("  PNR:%2d - %3d - %d\n", posiAcpt, negaAcpt, rejected);
 
             //printf(" New E*= %36.20Lf\n\n", initEng(box));
             //enable the above line to compare the result of two different methods
@@ -531,6 +531,3 @@ int main() {
     printf("\n\n\t\t Tadaaaaaa! :D \n\n");
     return (EXIT_SUCCESS);
 }
-
-
-
