@@ -23,6 +23,7 @@ int main(int argc, char** argv){
 
     ///////////   THIS IS FOR YOU DR. SUMMA  //////////////////////
     ///////////         ARGUMENTS            //////////////////////
+    
     int i;
     int arguments_found = 0;
 
@@ -135,29 +136,29 @@ int main(int argc, char** argv){
 
             accepted++;
 
-            /////////// Fancy-schmancy progress bar :)
-            int twentieth = NUMBER_OF_TRIALS/20;
-            printf("\r%7d | %3d%% [",i, (i/twentieth)*5);
-            int j;
-            for (j=0;j<i/twentieth;j++){
-                printf("--");
-            }
-
-            for (j=0;j<(20-i/twentieth);j++){
-                printf("  ");
-            }
-            printf("] 100%%");
-            fflush(0);
-            /////////// End fancy-schmancy progress bar
-
         }//end if
 
         else
             unaccepted++;//if not an acceptable state then increment the counter
-
+        
         i++;//move the iterator
-    }//end while
+        
+        /////////// Fancy-schmancy progress bar :)
+        int twentieth = NUMBER_OF_TRIALS/20;
+        printf("\r%7d | %3d%% [",i, (i/twentieth)*5);
+        int j;
+        for (j=0;j<i/twentieth;j++){
+            printf("--");
+        }
 
+        for (j=0;j<(20-i/twentieth);j++){
+            printf("  ");
+        }
+        printf("] 100%%");
+        fflush(0);
+        /////////// End fancy-schmancy progress bar
+    }//end while
+    
     //close the file
     fclose(file);
 
