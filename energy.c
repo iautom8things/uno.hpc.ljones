@@ -78,7 +78,7 @@ long double calculate_pair_energy(double distance){
 
     //if distance s less than the minimum accepted threshold
     if(distance < MIN_DISTANCE)
-        return 0;
+        return 25247348603631.2;
         
 
     //if >+=to 10 angtroms the, calulate the enregy of the pair
