@@ -10,7 +10,7 @@
 int perturb(cube * cubes)
 {
     int i; //iterator
-	int index_of_random = (int)((rand())/(RAND_MAX+1.0))*NUMBER_OF_PARTICLES;
+	int index_of_random = (int)rand()%NUMBER_OF_PARTICLES;
 
 	int adjacents_indices[MAX_NUMBER_OF_ADJACENTS];
     int number_of_adjacents;
