@@ -3,6 +3,7 @@
 #include <math.h>
 #include <time.h>
 #include <string.h>
+#include <mpi.h>
 
 #define NUMBER_OF_PARTICLES 1000 //number of particles in the system
 #define SIZE 5 // This is the number of cubes on a axis of the box (5 = a 5x5x5 cube)
@@ -12,6 +13,8 @@
 #define MIN_DISTANCE 0.3
 int NUMBER_OF_TRIALS; //number of trials to run
 int TEMPERATURE; //temperature of simulation in kelvin
+
+int id, nprocs; // MPI
 
 typedef struct{
 	double x; //x coordinate loaction of the particle

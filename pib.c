@@ -16,9 +16,16 @@
  * -o THE OUTPUT FILE NAME
  */
 int main(int argc, char** argv){
-
+    
+    MPI_Init(&argc, &argv);
+	MPI_Comm_rank(MPI_COMM_WORLD, &id);
+	MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+	
     int seed;//seed for the random number generator
-    char * output_file = "data.csv";//the default output file name
+    
+    // Setup individual output files for each processor
+    char* output_file = (char *)malloc(sizeof(char)*(12)); // 12 allows for id to be a 4-digit number, probably over-kill
+    sprintf(output_file, "data%d.csv", id);//the default output file name
 
 
     ///////////   THIS IS FOR YOU DR. SUMMA  //////////////////////
@@ -41,7 +48,7 @@ int main(int argc, char** argv){
         }
         if(strcmp(argv[i],"-seed") == 0)
         {
-                seed = atoi(argv[i+1]);
+                seed = atoi(argv[i+1])+(id*id); // Differentiate the seeds for each processor
                 arguments_found++;
         }
         if(strcmp(argv[i],"-o") == 0)
@@ -179,6 +186,7 @@ int main(int argc, char** argv){
     clean(cubes);
 
     return 1;
+    MPI_Finalize();
 }//end main
 
 /**
