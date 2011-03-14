@@ -62,7 +62,7 @@ int main(int argc, char** argv){
 
 	if(NUMBER_OF_TRIALS < 20)
 	{
-		printf("The number fo trials should be >= 20\n");
+		printf("The number of trials should be >= 20\n");
 		exit(0);
 	}
 
