@@ -96,7 +96,7 @@ long double calculate_pair_energy(double distance){
  */
 double compare_energies(long double old_energy, long double new_energy, double temperature)
 {
-    long double boltzmann = 1.38 * pow(10,-23);
+    long double boltzmann = 1.38;// * pow(10,-23);
 
     if(new_energy <= old_energy)
         return 1.0;
@@ -135,7 +135,7 @@ long double calculate_cube_list_energy(cube* cubes, int * cube_numbers, int leng
     long double energy = 0.0;
 
     for(i = 0; i < length; i++)
-            energy = cubes[cube_numbers[i]].energy;
+            energy += cubes[cube_numbers[i]].energy;
 
     return energy;
 }//end calculate_cube_list_energy

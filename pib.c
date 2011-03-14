@@ -56,9 +56,15 @@ int main(int argc, char** argv){
         printf("Please enter the arguments\n");
         printf("-temp TEMP\n");
         printf("-trials NUMBER OF TRIALS\n");
-        printf("-seed THE SEED FOR THE RANDOM NUMBEWR GENERATOR\n");
+        printf("-seed THE SEED FOR THE RANDOM NUMBER GENERATOR\n");
         exit(0);
     }
+
+	if(NUMBER_OF_TRIALS < 20)
+	{
+		printf("The number fo trials should be >= 20\n");
+		exit(0);
+	}
 
     /////////  END ARGUMENTS /////////////////////////////////
 		
@@ -99,6 +105,8 @@ int main(int argc, char** argv){
 
         temp_particle.myCube = belongs_to_cube((int) x/10,(int) y/10,(int) z/10);
 
+		particle_array[i] = temp_particle;
+
         addToCube(&cubes[temp_particle.myCube], temp_particle);
     }
 
@@ -113,7 +121,7 @@ int main(int argc, char** argv){
 
 
     //start the simualtion
-    printf("Starting the simulation with %d\n trials", NUMBER_OF_TRIALS);
+    printf("Starting the simulation with %d trials\n", NUMBER_OF_TRIALS);
 
     i = 0;//reset the iterator to use the while loop
     int unaccepted = 0;

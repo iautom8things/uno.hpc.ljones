@@ -10,112 +10,124 @@
 int perturb(cube * cubes)
 {
     int i; //iterator
-    double temp_x, temp_y, temp_z; //used to store the coordinates of the destroyed particles
-    int new_cube; //the new cube number for the particle
-    int old_cube; //the old cube number for the particle
+	int index_of_random = (int)((rand())/(RAND_MAX+1.0))*NUMBER_OF_PARTICLES;
 
-    //ensure we do not select an empty cube
-    do{
-        old_cube = ((rand())/(RAND_MAX+1.0))*TOTAL_NUMBER_OF_CUBES;
-    }while(cubes[old_cube].number_of_particles < 1);
+	int adjacents_indices[MAX_NUMBER_OF_ADJACENTS];
+    int number_of_adjacents;
 
-    int index = ((rand())/(RAND_MAX+1.0))*cubes[old_cube].number_of_particles;
-    long double old_energy = system_energy(cubes);
+	int old_cube_indices[MAX_NUMBER_OF_ADJACENTS];
+    int number_of_old_cubes;
+	particle * neighbor_particles_of_random;
+	int number_of_neighbors;
+	
+	long double old_cube_energies[MAX_NUMBER_OF_ADJACENTS];
 
+	long double old_energy;
+	long double new_energy;
+	
+	long double energy_at_old_initial;
+	long double energy_at_old_final;
 
-    //get the intitial energy at the old cube
-    int adjacents_indices[MAX_NUMBER_OF_ADJACENTS];
-    int number_of_adjacents = adjacents(adjacents_indices, old_cube);
-    long double energy_at_old_initial = calculate_cube_list_energy(cubes,adjacents_indices, number_of_adjacents);
+	long double energy_at_new_initial;
+	long double energy_at_new_final;
+	
+	//inital energy of the system
+    old_energy = system_energy(cubes);
 
+	particle random_particle = particle_array[index_of_random];
 
-    //store the initial information of the particle that will be moved
-    temp_x = cubes[old_cube].particles[index].x;
-    temp_y = cubes[old_cube].particles[index].y;
-    temp_z = cubes[old_cube].particles[index].z;
+	//get old cube energies
+    number_of_old_cubes = adjacents(old_cube_indices, random_particle.myCube);
+	for(i = 0; i < number_of_old_cubes; i++)
+		old_cube_energies[i] = cubes[old_cube_indices[i]].energy;		
+
+	//get initial energy
+	energy_at_old_initial = calculate_cube_list_energy(cubes,old_cube_indices, number_of_old_cubes);
+
+	//change the energies of the old cubes
+	neighbor_particles_of_random = get_particles_from_cubes(old_cube_indices, number_of_old_cubes, cubes, &number_of_neighbors);
+
+	for(i = 0; i < number_of_neighbors; i++)
+	{
+		if(random_particle.myCube != neighbor_particles_of_random[i].myCube)
+		{
+			cubes[random_particle.myCube].energy -= calculate_pair_energy(distance(random_particle, neighbor_particles_of_random[i]));
+			cubes[neighbor_particles_of_random[i].myCube].energy -= calculate_pair_energy(distance(random_particle, neighbor_particles_of_random[i]));
+		}
+		else
+			cubes[random_particle.myCube].energy -= calculate_pair_energy(distance(random_particle, neighbor_particles_of_random[i]));
+	}
 
     //remove the particle
-    remove_particle(&cubes[old_cube], index);
+    remove_particle(&cubes[random_particle.myCube], random_particle);
 
-    //create a new particle to be added to a random cube/////////////
+	//get change energy
+	energy_at_old_final = calculate_cube_list_energy(cubes,old_cube_indices, number_of_old_cubes); 
+
+    //create a new particle to be added to a random_particle cube/////////////
     particle temp;
+    
+    temp.x = SIZE*LENGTH_OF_CUBE*((rand())/(RAND_MAX+1.0));
+    temp.y = SIZE*LENGTH_OF_CUBE*((rand())/(RAND_MAX+1.0));
+    temp.z = SIZE*LENGTH_OF_CUBE*((rand())/(RAND_MAX+1.0));
+    temp.myCube = belongs_to_cube((int) temp.x/10,(int) temp.y/10,(int) temp.z/10);
+    
+    /////////////Done create a new particle//////////////////////////
 
-    double x,y,z;
-    double random_num = rand();
-    x = SIZE*LENGTH_OF_CUBE*((random_num)/(RAND_MAX+1.0));
-    temp.x = x;
+	//get cube information at new location
+	number_of_adjacents = adjacents(adjacents_indices, temp.myCube);
 
-    random_num = rand();
-    y = SIZE*LENGTH_OF_CUBE*((random_num)/(RAND_MAX+1.0));
-    temp.y = y;
+	//get the energy at the new loaction before altering it
+	energy_at_new_initial = calculate_cube_list_energy(cubes,adjacents_indices, number_of_adjacents);
 
-    random_num = rand();
-    z = SIZE*LENGTH_OF_CUBE*((random_num)/(RAND_MAX+1.0));
-    temp.z = z;
-
-    temp.myCube = belongs_to_cube((int) x/10,(int) y/10,(int) z/10);
-
-	new_cube = temp.myCube;
-
-    addToCube(&cubes[temp.myCube], temp);
-    //Done create a new particle
-
+	//add the particle to the new cube
+	addToCube(&cubes[temp.myCube], temp);
 	
-    //recalulate the energy at the old cube location
-    for(i = 0; i < number_of_adjacents; i++)
-            calculate_cube_energy(cubes, adjacents_indices[i]);
-
-    //get the final energy of the old cube location
-    long double energy_at_old_final = calculate_cube_list_energy(cubes,adjacents_indices, number_of_adjacents);
-
-
-    //get the information for the new location
-    //adjacents_indices[MAX_NUMBER_OF_ADJACENTS];
-    number_of_adjacents = adjacents(adjacents_indices, temp.myCube);
-
-	
-    //get the intitial energy at the new cube
-    long double energy_at_new_initial = calculate_cube_list_energy(cubes,adjacents_indices, number_of_adjacents);
-
-    //recalculate the enrgy at the new cube
+    //recalulate the energy at the new cube location
     for(i = 0; i < number_of_adjacents; i++)
             calculate_cube_energy(cubes, adjacents_indices[i]);
 
     //get the new energy of the new cube location
-    long double energy_at_new_final = calculate_cube_list_energy(cubes,adjacents_indices, number_of_adjacents);;
-
+    energy_at_new_final = calculate_cube_list_energy(cubes,adjacents_indices, number_of_adjacents);
 
     //get the new energy of the system
-    long double new_energy = old_energy + (energy_at_old_final - energy_at_old_initial) + (energy_at_new_final - energy_at_new_initial);
+    new_energy = old_energy + (energy_at_old_final - energy_at_old_initial) + (energy_at_new_final - energy_at_new_initial);
 
     //calulate the probability of acceptance
     double probability = compare_energies(old_energy,new_energy,TEMPERATURE);
 
+	free(neighbor_particles_of_random);
 	
     //if not acceptable then revert the changes
-    //use a random acceptance level
+    //use a random_particle acceptance level
     //MONTE CARLO THAT THANG
     if( ((rand())/(RAND_MAX+1.0)) > probability)
     {
-        particle temp;
+       
+		//reset the energies in the old cubes
+		for(i = 0; i < number_of_old_cubes; i++)
+			cubes[old_cube_indices[i]].energy = old_cube_energies[i];	
 
+		//add the particle back to the old location
+        addToCube(&cubes[random_particle.myCube], random_particle);
 
-        temp.x = temp_x;
-        temp.y = temp_y;
-        temp.z = temp_z;
+		//remove the particle from the new loaction
+        remove_particle(&cubes[temp.myCube], temp);
 
-        temp.myCube = old_cube;
+		//recalculate the energies at the new location
+		for(i = 0; i < number_of_adjacents; i++)
+            calculate_cube_energy(cubes, adjacents_indices[i]);
 
-        addToCube(&cubes[old_cube], temp);
-
-        remove_particle(&cubes[new_cube],(cubes[new_cube].number_of_particles)-1);
+		
         //revert
         return 0;
 		
     }
     else
+	{
+		particle_array[index_of_random] = temp;	
         return 1;
-
+	}
 }//end perturb
 
 /**
@@ -124,8 +136,27 @@ int perturb(cube * cubes)
  * @param index The index of the particle in the cube
  * @author Daniel Ward
  */
-void remove_particle(cube * a_cube, int index)
+void remove_particle(cube * a_cube, particle a_particle)
 {
+	int index = 0;
+	char found = 'F';
+
+	//find the index of the the particle to remove
+	while((index < a_cube->number_of_particles) && (found != 'T'))
+	{
+
+		if((a_cube->particles[index].x == a_particle.x) && 
+			(a_cube->particles[index].y == a_particle.y) && 
+			(a_cube->particles[index].z == a_particle.z) && 
+			(a_cube->particles[index].myCube == a_particle.myCube))
+		{
+			found = 'T';
+		}
+		else
+		index++;
+ 
+	}
+
     //swap the last particle for the one to be removed
     a_cube->particles[index] = a_cube->particles[(a_cube->number_of_particles - 1)];
 

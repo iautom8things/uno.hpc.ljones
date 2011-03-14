@@ -10,7 +10,7 @@
 #define TOTAL_NUMBER_OF_CUBES SIZE*SIZE*SIZE //5x5x5 box = 125 cubes
 #define MAX_NUMBER_OF_ADJACENTS 26
 #define MIN_DISTANCE 0.3
-int NUMBER_OF_TRIALS; //numer of trials to run
+int NUMBER_OF_TRIALS; //number of trials to run
 int TEMPERATURE; //temperature of simulation in kelvin
 
 typedef struct{
@@ -26,6 +26,8 @@ typedef struct{
 	long double energy; //the total energy of the cube
 } cube;
 
+particle particle_array[NUMBER_OF_PARTICLES];
+
 //Found in pib.c
 void clean();
 
@@ -34,7 +36,7 @@ particle* get_particles_from_cubes(int * neighbors, int num_neighbors, cube * cu
 unsigned char in_bounds(int row, int column, int height);
 int adjacents(int* adjacent_index_array, int index);
 int belongs_to_cube(double x, double y, double z);
-void remove_particle(cube * a_cube, int index);
+void remove_particle(cube * a_cube, particle a_particle);
 int perturb(cube * cubes);
 
 //Found in addtocube.c
