@@ -16,7 +16,7 @@
  * -o THE OUTPUT FILE NAME
  */
 int main(int argc, char** argv){
-    
+    MPI_Status status;
     MPI_Init(&argc, &argv);
 	MPI_Comm_rank(MPI_COMM_WORLD, &id);
 	MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
@@ -125,67 +125,12 @@ int main(int argc, char** argv){
 
         calculate_cube_energy(cubes, i);
     }
-
-    if (id==0){
-        //start the simualtion
-        printf("Starting the simulation with %d trials\n", NUMBER_OF_TRIALS);
-
-        i = 0;//reset the iterator to use the while loop
-        int unaccepted = 0;
-	    int accepted = 0;
-    
-    
-        //open a file to save the energies, this makes it easier to graph
-        FILE * file = fopen(output_file,"w");
-
-        //do until we have the number of successes we are looking for
-        while(i < NUMBER_OF_TRIALS)
-        {
-            //the energy of the current state of the cube
-            long double old_energy = system_energy(cubes);
-
-            //if the perturb creates an acceptable state then save the energy
-            if(perturb(cubes) == 1)
-            {
-                //write the energy to file
-                fprintf(file,"Energy\t%4d\t%Lf\n",i,old_energy);
-
-                accepted++;
-
-            }//end if
-
-            else
-                unaccepted++;//if not an acceptable state then increment the counter
-        
-            i++;//move the iterator
-        
-            /////////// Fancy-schmancy progress bar :)
-            int twentieth = NUMBER_OF_TRIALS/20;
-            printf("\r%7d | %3d%% [",i, (i/twentieth)*5);
-            int j;
-            for (j=0;j<i/twentieth;j++){
-                printf("--");
-            }
-
-            for (j=0;j<(20-i/twentieth);j++){
-                printf("  ");
-            }
-            printf("] 100%%");
-            fflush(0);
-            /////////// End fancy-schmancy progress bar
-        }//end while
-    
-        //close the file
-        fclose(file);
-
-        //print the successes and the failures
-        printf("\n");
-        printf("Accepted States: %d\n", accepted);
-        printf("Unaccepted States: %d\n" , unaccepted);
-    }//end if main process
+///////////////////////////////////////////////////
+    setup_tree();
+///////////////////////////////////////////////////
+    printf("done %d\n", id);
     //do some clean up
     clean(cubes);
-
     MPI_Finalize();
 }//end main
 
