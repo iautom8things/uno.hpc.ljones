@@ -186,7 +186,6 @@ int main(int argc, char** argv){
     //do some clean up
     clean(cubes);
 
-    return 1;
     MPI_Finalize();
 }//end main
 

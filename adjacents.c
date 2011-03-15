@@ -25,6 +25,8 @@ int perturb(cube * cubes)
 	long double old_energy;
 	long double new_energy;
 	
+	long double energy_change_at_old = 0.0;
+	long double energy_change_at_new = 0.0;
 	long double energy_at_old_initial;
 	long double energy_at_old_final;
 
@@ -51,11 +53,16 @@ int perturb(cube * cubes)
 	{
 		if(random_particle.myCube != neighbor_particles_of_random[i].myCube)
 		{
-			cubes[random_particle.myCube].energy -= calculate_pair_energy(distance(random_particle, neighbor_particles_of_random[i]));
-			cubes[neighbor_particles_of_random[i].myCube].energy -= calculate_pair_energy(distance(random_particle, neighbor_particles_of_random[i]));
+			long double energy = calculate_pair_energy(distance(random_particle, neighbor_particles_of_random[i]));
+			cubes[random_particle.myCube].energy -= energy;
+			cubes[neighbor_particles_of_random[i].myCube].energy -= energy;
+			energy_change_at_old += 2 * energy;
 		}
-		else
-			cubes[random_particle.myCube].energy -= calculate_pair_energy(distance(random_particle, neighbor_particles_of_random[i]));
+		else{
+			long double energy = calculate_pair_energy(distance(random_particle, neighbor_particles_of_random[i]));
+			cubes[random_particle.myCube].energy -= energy;
+			energy_change_at_old += energy;			
+		}
 	}
 
     //remove the particle
@@ -84,19 +91,40 @@ int perturb(cube * cubes)
 	addToCube(&cubes[temp.myCube], temp);
 	
     //recalulate the energy at the new cube location
-    for(i = 0; i < number_of_adjacents; i++)
-            calculate_cube_energy(cubes, adjacents_indices[i]);
+	int number_of_neighbors_at_new;
+	int new_cube_indices[MAX_NUMBER_OF_ADJACENTS];
+	int number_new_cubes;
+
+	number_new_cubes = adjacents(new_cube_indices, temp.myCube);
+    particle * neighbor_particles_at_new = get_particles_from_cubes(new_cube_indices, number_new_cubes, cubes, &number_of_neighbors_at_new);
+
+	for(i = 0; i < number_of_neighbors_at_new; i++)
+	{
+		if(temp.myCube != neighbor_particles_at_new[i].myCube)
+		{
+			long double energy = calculate_pair_energy(distance(temp, neighbor_particles_at_new[i]));
+			cubes[temp.myCube].energy -= energy;
+			cubes[neighbor_particles_at_new[i].myCube].energy -= energy;
+			energy_change_at_new += 2 * energy;
+		}
+		else{
+			long double energy = calculate_pair_energy(distance(temp, neighbor_particles_at_new[i]));
+			cubes[temp.myCube].energy -= energy;
+			energy_change_at_new += energy;			
+		}
+	}
 
     //get the new energy of the new cube location
     energy_at_new_final = calculate_cube_list_energy(cubes,adjacents_indices, number_of_adjacents);
 
     //get the new energy of the system
-    new_energy = old_energy + (energy_at_old_final - energy_at_old_initial) + (energy_at_new_final - energy_at_new_initial);
+    new_energy = old_energy + (energy_change_at_new - energy_change_at_old);
 
     //calulate the probability of acceptance
     double probability = compare_energies(old_energy,new_energy,TEMPERATURE);
 
 	free(neighbor_particles_of_random);
+	free(neighbor_particles_at_new);
 	
     //if not acceptable then revert the changes
     //use a random_particle acceptance level
