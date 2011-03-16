@@ -69,12 +69,16 @@ void setup_tree (){
          
         if (left_child < nprocs){
             //printf("My buff: %d\tChild buff: %d\tleft_child: %d\t right: %d\n", max_buff_size, childrens_max_buff_size, left_child, right_child);
-            MPI_Sendrecv(&accepted_state, childrens_max_buff_size, MPI_DOUBLE, left_child, id, &finished, 1, MPI_INT, left_child, left_child, MPI_COMM_WORLD, &status);
+            MPI_Send(&accepted_state, childrens_max_buff_size, MPI_DOUBLE, left_child, id, MPI_COMM_WORLD);
         }
         if (right_child < nprocs){
             //printf("My buff: %d\tChild buff: %d\tleft_child: %d\t right: %d\n", max_buff_size, childrens_max_buff_size, left_child, right_child);
-            MPI_Sendrecv(&rejected_state, childrens_max_buff_size, MPI_DOUBLE, right_child, id, &finished, 1, MPI_INT, right_child, right_child, MPI_COMM_WORLD, &status);
+            MPI_Send(&rejected_state, childrens_max_buff_size, MPI_DOUBLE, right_child, id, MPI_COMM_WORLD);
         }
+        if (left_child < nprocs)
+            MPI_Recv(&finished, 1, MPI_INT, left_child, left_child, MPI_COMM_WORLD, &status);
+        if (right_child < nprocs)
+            MPI_Recv(&finished, 1, MPI_INT, right_child, right_child, MPI_COMM_WORLD, &status);
         int temp = 1;
         MPI_Send(&temp, 1, MPI_INT, parent, id, MPI_COMM_WORLD);
     }
