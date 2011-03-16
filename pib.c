@@ -47,7 +47,7 @@ int main(int argc, char** argv){
         }
         if(strcmp(argv[i],"-seed") == 0)
         {
-                seed = atoi(argv[i+1]); //might want to differentiate the seeds after the initial setup of the box
+                seed = atoi(argv[i+1])+id; //might want to differentiate the seeds after the initial setup of the box
                 arguments_found++;
         }
         if(strcmp(argv[i],"-o") == 0)
