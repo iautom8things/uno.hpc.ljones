@@ -54,4 +54,4 @@ long double calculate_pair_energy(double distance);
 long double calculate_cube_list_energy(cube* cubes, int * cube_numbers, int length);
 void calculate_cube_energy(cube *cubes, int cube_index);
 double compare_energies(long double energy_a, long double energy_b, double temperature);
-
+void setup_tree (int max_buff_size, int childrens_max_buff_size, double *previous_state, double *accepted_state, double *rejected_state);
