@@ -132,12 +132,19 @@ int main(int argc, char** argv){
         max_buff_size = floor(log2(id))*4; // There's 4 double elements 
         childrens_max_buff_size = max_buff_size+4;
     }
+    double current_peturbing[4];
     double previous_state[max_buff_size];
     double accepted_state[childrens_max_buff_size]; 
     double rejected_state[childrens_max_buff_size];
     
-    setup_tree(max_buff_size, childrens_max_buff_size, previous_state, accepted_state, rejected_state);
-    
+    setup_tree(max_buff_size, childrens_max_buff_size, previous_state, current_peturbing, accepted_state, rejected_state);
+    if (id != 0)
+        update_state(cubes, particle_array, previous_state, current_peturbing, max_buff_size);
+    else{
+        int temp;
+        for (i=1; i<nprocs;i++)
+            MPI_Recv(&temp, 1, MPI_INT, i, 42, MPI_COMM_WORLD, &status);
+    }
     /*if (id==0){
         //start the simualtion
         printf("Starting the simulation with %d trials\n", NUMBER_OF_TRIALS);
