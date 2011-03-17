@@ -7,10 +7,9 @@
  * @return 1 if the new state is acceptable, else 0
  * @author Daniel Ward
  */
-int perturb(cube * cubes)
+long double perturb(int to_remove_index, particle new_particle)
 {
     int i; //iterator
-	int index_of_random = (int)rand()%NUMBER_OF_PARTICLES;
 
 	int adjacents_indices[MAX_NUMBER_OF_ADJACENTS];
     int number_of_adjacents;
@@ -22,8 +21,7 @@ int perturb(cube * cubes)
 	
 	long double old_cube_energies[MAX_NUMBER_OF_ADJACENTS];
 
-	long double old_energy;
-	long double new_energy;
+	long double delta_energy;
 	
 	long double energy_change_at_old = 0.0;
 	long double energy_change_at_new = 0.0;
@@ -33,13 +31,11 @@ int perturb(cube * cubes)
 	long double energy_at_new_initial;
 	long double energy_at_new_final;
 	
-	//inital energy of the system
-    old_energy = system_energy(cubes);
 
-	particle random_particle = particle_array[index_of_random];
+	particle old_particle = particle_array[to_remove_index];
 
 	//get old cube energies
-    number_of_old_cubes = adjacents(old_cube_indices, random_particle.myCube);
+    number_of_old_cubes = adjacents(old_cube_indices, old_particle.myCube);
 	for(i = 0; i < number_of_old_cubes; i++)
 		old_cube_energies[i] = cubes[old_cube_indices[i]].energy;		
 
@@ -51,111 +47,62 @@ int perturb(cube * cubes)
 
 	for(i = 0; i < number_of_neighbors; i++)
 	{
-		if(random_particle.myCube != neighbor_particles_of_random[i].myCube)
+		if(old_particle.myCube != neighbor_particles_of_random[i].myCube)
 		{
-			long double energy = calculate_pair_energy(distance(random_particle, neighbor_particles_of_random[i]));
-			cubes[random_particle.myCube].energy -= energy;
-			cubes[neighbor_particles_of_random[i].myCube].energy -= energy;
+			long double energy = calculate_pair_energy(distance(old_particle, neighbor_particles_of_random[i]));
 			energy_change_at_old += 2 * energy;
 		}
 		else{
-			long double energy = calculate_pair_energy(distance(random_particle, neighbor_particles_of_random[i]));
-			cubes[random_particle.myCube].energy -= energy;
+			long double energy = calculate_pair_energy(distance(old_particle, neighbor_particles_of_random[i]));
+			cubes[old_particle.myCube].energy -= energy;
 			energy_change_at_old += energy;			
 		}
 	}
 
     //remove the particle
-    remove_particle(&cubes[random_particle.myCube], random_particle);
+    remove_particle(&cubes[old_particle.myCube], old_particle);
 
-	//get change energy
-	energy_at_old_final = calculate_cube_list_energy(cubes,old_cube_indices, number_of_old_cubes); 
-
-    //create a new particle to be added to a random_particle cube/////////////
-    particle temp;
+    new_particle.myCube = belongs_to_cube((int) new_particle.x/10,(int) new_particle.y/10,(int) new_particle.z/10);
     
-    temp.x = SIZE*LENGTH_OF_CUBE*((rand())/(RAND_MAX+1.0));
-    temp.y = SIZE*LENGTH_OF_CUBE*((rand())/(RAND_MAX+1.0));
-    temp.z = SIZE*LENGTH_OF_CUBE*((rand())/(RAND_MAX+1.0));
-    temp.myCube = belongs_to_cube((int) temp.x/10,(int) temp.y/10,(int) temp.z/10);
-    
-    /////////////Done create a new particle//////////////////////////
-
 	//get cube information at new location
-	number_of_adjacents = adjacents(adjacents_indices, temp.myCube);
-
-	//get the energy at the new loaction before altering it
-	energy_at_new_initial = calculate_cube_list_energy(cubes,adjacents_indices, number_of_adjacents);
+	number_of_adjacents = adjacents(adjacents_indices, new_particle.myCube);
 
 	//add the particle to the new cube
-	addToCube(&cubes[temp.myCube], temp);
+	addToCube(&cubes[new_particle.myCube], new_particle);
 	
     //recalulate the energy at the new cube location
 	int number_of_neighbors_at_new;
 	int new_cube_indices[MAX_NUMBER_OF_ADJACENTS];
 	int number_new_cubes;
 
-	number_new_cubes = adjacents(new_cube_indices, temp.myCube);
+	number_new_cubes = adjacents(new_cube_indices, new_particle.myCube);
     particle * neighbor_particles_at_new = get_particles_from_cubes(new_cube_indices, number_new_cubes, cubes, &number_of_neighbors_at_new);
 
 	for(i = 0; i < number_of_neighbors_at_new; i++)
 	{
-		if(temp.myCube != neighbor_particles_at_new[i].myCube)
+		if(new_particle.myCube != neighbor_particles_at_new[i].myCube)
 		{
-			long double energy = calculate_pair_energy(distance(temp, neighbor_particles_at_new[i]));
-			cubes[temp.myCube].energy -= energy;
-			cubes[neighbor_particles_at_new[i].myCube].energy -= energy;
+			long double energy = calculate_pair_energy(distance(new_particle, neighbor_particles_at_new[i]));
 			energy_change_at_new += 2 * energy;
 		}
 		else{
-			long double energy = calculate_pair_energy(distance(temp, neighbor_particles_at_new[i]));
-			cubes[temp.myCube].energy -= energy;
+			long double energy = calculate_pair_energy(distance(new_particle, neighbor_particles_at_new[i]));
+			cubes[new_particle.myCube].energy -= energy;
 			energy_change_at_new += energy;			
 		}
 	}
 
-    //get the new energy of the new cube location
-    energy_at_new_final = calculate_cube_list_energy(cubes,adjacents_indices, number_of_adjacents);
-
     //get the new energy of the system
-    new_energy = old_energy + (energy_change_at_new - energy_change_at_old);
+    delta_energy = (energy_change_at_new - energy_change_at_old);
 
     //calulate the probability of acceptance
-    double probability = compare_energies(old_energy,new_energy,TEMPERATURE);
+    
 
 	free(neighbor_particles_of_random);
 	free(neighbor_particles_at_new);
 	
-    //if not acceptable then revert the changes
-    //use a random_particle acceptance level
-    //MONTE CARLO THAT THANG
-    if( ((rand())/(RAND_MAX+1.0)) > probability)
-    {
-       
-		//reset the energies in the old cubes
-		for(i = 0; i < number_of_old_cubes; i++)
-			cubes[old_cube_indices[i]].energy = old_cube_energies[i];	
-
-		//add the particle back to the old location
-        addToCube(&cubes[random_particle.myCube], random_particle);
-
-		//remove the particle from the new loaction
-        remove_particle(&cubes[temp.myCube], temp);
-
-		//recalculate the energies at the new location
-		for(i = 0; i < number_of_adjacents; i++)
-            calculate_cube_energy(cubes, adjacents_indices[i]);
-
-		
-        //revert
-        return 0;
-		
-    }
-    else
-	{
-		particle_array[index_of_random] = temp;	
-        return 1;
-	}
+	
+	return delta_energy;
 }//end perturb
 
 /**
@@ -188,19 +135,19 @@ void remove_particle(cube * a_cube, particle a_particle)
     //swap the last particle for the one to be removed
     a_cube->particles[index] = a_cube->particles[(a_cube->number_of_particles - 1)];
 
-    //expand a temporary array to hold the particles in a_cube minus one
-    particle * temp = (particle *)malloc(sizeof(particle) * (a_cube->number_of_particles - 1 ));
+    //expand a new_particleorary array to hold the particles in a_cube minus one
+    particle * new_particle = (particle *)malloc(sizeof(particle) * (a_cube->number_of_particles - 1 ));
 
     //copy the particles from a_cube to the new array
     int i;
     for(i = 0; i < (a_cube->number_of_particles - 1); i++)
-            temp[i] = a_cube->particles[i];
+            new_particle[i] = a_cube->particles[i];
 
     //free the old array
     free(a_cube->particles);
 
     //assign the new array to a_cube
-    a_cube->particles = temp;
+    a_cube->particles = new_particle;
 
     //reduce the number_of_particles counter
     (*a_cube).number_of_particles--;
@@ -237,13 +184,13 @@ particle* get_particles_from_cubes(int * neighbors, int num_neighbors, cube * cu
     //go through each neighbor cube to get the particles
     for(i = 0; i < num_neighbors; i++)
     {
-        //create a temporary reference  to the current cube
-        cube temp = cubes[neighbors[i]];
+        //create a new_particleorary reference  to the current cube
+        cube new_particle = cubes[neighbors[i]];
 
         //add the particles from each cube to the resulting array
-        for(j = 0; j < temp.number_of_particles; j++ )
+        for(j = 0; j < new_particle.number_of_particles; j++ )
         {
-            result[resultIndex] = temp.particles[j];
+            result[resultIndex] = new_particle.particles[j];
             resultIndex++;//move the result array index
         }
     }

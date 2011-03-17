@@ -29,6 +29,7 @@ void setup_tree (int max_buff_size, int childrens_max_buff_size, double *previou
                                         SIZE*LENGTH_OF_CUBE*((rand())/(RAND_MAX+1.0)), // x coordinate
                                         SIZE*LENGTH_OF_CUBE*((rand())/(RAND_MAX+1.0)), // y coordinate
                                         SIZE*LENGTH_OF_CUBE*((rand())/(RAND_MAX+1.0))};// z coordinate
+		
         
         // copy previous_state (from parent), to be sent to children
         if (id != 1){ // node 1 doesn't do this because it's sent a 'dummy previous state' from 0 because node 1 already has the current state
@@ -58,6 +59,52 @@ void setup_tree (int max_buff_size, int childrens_max_buff_size, double *previou
             //printf("My buff: %d\tChild buff: %d\tleft_child: %d\t right: %d\n", max_buff_size, childrens_max_buff_size, left_child, right_child);
             MPI_Send(rejected_state, childrens_max_buff_size, MPI_DOUBLE, right_child, id, MPI_COMM_WORLD);
         }
+
+
+		//adjust array to parents state
+		for (i=0; i<max_buff_size;i++){
+            if(i == -1)
+				i += 4;
+			else
+			{
+				remove_particle(&cubes, particle_array[(int)previous_state[i]);
+				particle_array[(int)previous_state[i]].x = previous_state[i+1];
+				particle_array[(int)previous_state[i]].y = previous_state[i+2];
+				particle_array[(int)previous_state[i]].z = previous_state[i+1];
+				particle_array[(int)previous_state[i]].myCube = belongs_to_cube((int) previous_state[i+1]/10,
+																				(int) previous_state[i+2]/10,
+																				(int) previous_state[i+3]/10);
+				addToCube(&cubes,particle_array[(int)previous_state[i]]);
+			}
+        }
+
+		particle_array[current_peturbing[0]].x = current_peturbing[1];
+		particle_array[current_peturbing[0]].y = current_peturbing[2];
+		particle_array[current_peturbing[0]].z = current_peturbing[3];
+
+		//perturb
+		long double delta = 0;//perturb();
+
+		//compare energy
+		double probability = compare_energies(delta);
+
+		//if not acceptable then revert the changes
+		//use a old_particle acceptance level
+		//MONTE CARLO THAT THANG
+		if( ((rand())/(RAND_MAX+1.0)) > probability)
+		{
+		   
+		    //fail
+		    //delta_energy = 0for (i=0; i<max_buff_size;i++){
+            printf("%f, ",previous_state[i]);
+        }
+
+		//we should send a two element paylod to the parent
+		//1st element is the accpetance (true or flase)
+		//2nd the delta energy, to be collected
+		
+		
+	
         // busy wait for children to finish
         if (left_child < nprocs)
             MPI_Recv(&finished, 1, MPI_INT, left_child, left_child, MPI_COMM_WORLD, &status);

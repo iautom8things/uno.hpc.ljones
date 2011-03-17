@@ -94,14 +94,14 @@ long double calculate_pair_energy(double distance){
  * @return The probablity fo acceptance of the new energy
  * @author Daniel Ward
  */
-double compare_energies(long double old_energy, long double new_energy, double temperature)
+double compare_energies(long double delta)
 {
     long double boltzmann = 1.38;// * pow(10,-23);
 
-    if(new_energy <= old_energy)
+    if(delta <= 0)
         return 1.0;
     else
-        return exp(-1 * (new_energy - old_energy)/(boltzmann*temperature));
+        return exp(-1 * (delta)/(boltzmann*TEMPERATURE));
 }//end compare_energies
 
 /**

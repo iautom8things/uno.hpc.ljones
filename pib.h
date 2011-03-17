@@ -30,6 +30,7 @@ typedef struct{
 } cube;
 
 particle particle_array[NUMBER_OF_PARTICLES];
+cube cubes[TOTAL_NUMBER_OF_CUBES];
 
 //Found in pib.c
 void clean();
@@ -40,7 +41,7 @@ unsigned char in_bounds(int row, int column, int height);
 int adjacents(int* adjacent_index_array, int index);
 int belongs_to_cube(double x, double y, double z);
 void remove_particle(cube * a_cube, particle a_particle);
-int perturb(cube * cubes);
+long double perturb(int old_index, particle new_particle);
 
 //Found in addtocube.c
 void addToCube(cube * a_cube, particle a_particle);
@@ -53,5 +54,5 @@ long double system_energy(cube * cubes);
 long double calculate_pair_energy(double distance);
 long double calculate_cube_list_energy(cube* cubes, int * cube_numbers, int length);
 void calculate_cube_energy(cube *cubes, int cube_index);
-double compare_energies(long double energy_a, long double energy_b, double temperature);
+double compare_energies(long double delta);
 void setup_tree (int max_buff_size, int childrens_max_buff_size, double *previous_state, double *accepted_state, double *rejected_state);

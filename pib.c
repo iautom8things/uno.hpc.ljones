@@ -80,7 +80,7 @@ int main(int argc, char** argv){
 
 
 	//double energies[NUMBER_OF_TRIALS];//store accepted energies
-    cube cubes[TOTAL_NUMBER_OF_CUBES]; // allocate an array for our cubes
+    //cube cubes[TOTAL_NUMBER_OF_CUBES]; // allocate an array for our cubes
 
     //initalize the cubes in the array
     for(i=0;i<TOTAL_NUMBER_OF_CUBES;i++){
