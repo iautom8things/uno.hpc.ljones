@@ -116,10 +116,12 @@ void update_state(cube *cubes, particle *particle_array, double *previous_state,
 		else
             i += 3;
     }
+    // update the particle array with the information of the current state's particle peturbing
     particle_index = (int)current_peturbing[0];
-	particle_array[particle_index].x = current_peturbing[1];
-	particle_array[particle_index].y = current_peturbing[2];
-	particle_array[particle_index].z = current_peturbing[3];
+	particle_array[particle_index].x = x = current_peturbing[1];
+	particle_array[particle_index].y = y = current_peturbing[2];
+	particle_array[particle_index].z = z = current_peturbing[3];
+    particle_array[particle_index].myCube = belongs_to_cube((int) x/10, (int) y/10, (int) z/10);
     
     // Tell 0, I'm done
     int temp = 1;
