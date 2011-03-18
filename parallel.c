@@ -149,7 +149,7 @@ void perturb(double *current_perturbing, long double * result){
     //if not acceptable then revert the changes
 	//use a old_particle acceptance level
 	//MONTE CARLO THAT THANG
-	if( ((rand())/(RAND_MAX+1.0)) > probability)
+	if( ((rand())/(RAND_MAX+1.0)) < probability)
 		result[0] = 0;
 	else
 		result[0] = 1;
