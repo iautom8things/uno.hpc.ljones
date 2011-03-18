@@ -84,19 +84,19 @@ void update_state(cube *cubes, particle *particle_array, double *previous_state,
             particle_index = (int) previous_state[i];
             cube_index = particle_array[particle_index].myCube;
             
-            ////// Debugging print lines
+       /*     ////// Debugging print lines
             printf("%d: Cube:%d #:%d\n", id, cube_index, cubes[cube_index].number_of_particles);
             for (j=0; j<cubes[cube_index].number_of_particles; j++)
                 printf("%d: x: %f y: %f z: %f\n", id, cubes[cube_index].particles[j].x, cubes[cube_index].particles[j].y, cubes[cube_index].particles[j].z);
 			////// End Debugging print lines
-			
+		*/	
 			remove_particle(&cubes[cube_index], particle_array[particle_index]);
 			
-			////// Debugging print lines
+		/*	////// Debugging print lines
             printf("%d: Cube:%d #:%d\n", id, cube_index, cubes[cube_index].number_of_particles);
             for (j=0; j<cubes[cube_index].number_of_particles; j++)
                 printf("%d: x: %f y: %f z: %f\n", id, cubes[cube_index].particles[j].x, cubes[cube_index].particles[j].y, cubes[cube_index].particles[j].z);
-            ////// End Debugging print lines
+          */  ////// End Debugging print lines
             
 			particle_array[particle_index].x = x = previous_state[i+1];
 			particle_array[particle_index].y = y = previous_state[i+2];
@@ -105,19 +105,19 @@ void update_state(cube *cubes, particle *particle_array, double *previous_state,
 													                            (int) y/10,
 															                    (int) z/10);
 
-			////// Debugging print lines
+		/*	////// Debugging print lines
             printf("%d: Cube:%d #:%d\n", id, cube_index, cubes[cube_index].number_of_particles);
             for (j=0; j<cubes[cube_index].number_of_particles; j++)
                 printf("%d: x: %f y: %f z: %f\n", id, cubes[cube_index].particles[j].x, cubes[cube_index].particles[j].y, cubes[cube_index].particles[j].z);
-            ////// End Debugging print lines
+         */   ////// End Debugging print lines
 
 			addToCube(&cubes[cube_index],particle_array[particle_index]);
 
-			////// Debugging print lines
+		/*	////// Debugging print lines
             printf("%d: Cube:%d #:%d\n", id, cube_index, cubes[cube_index].number_of_particles);
             for (j=0; j<cubes[cube_index].number_of_particles; j++)
                 printf("%d: x: %f y: %f z: %f\n", id, cubes[cube_index].particles[j].x, cubes[cube_index].particles[j].y, cubes[cube_index].particles[j].z);
-            ////// End Debugging print lines
+          */  ////// End Debugging print lines
             i += 3;
 		} // end not -1
 		else

@@ -141,33 +141,54 @@ int main(int argc, char** argv){
 
     if (id != 0){
 //MPI_Send(&temp, 1, MPI_INT, parent, id, MPI_COMM_WORLD);
+		
+		printf("Updateing state in process: %d\n",id);
         update_state(cubes, particle_array, previous_state, current_peturbing, max_buff_size);
 
 		long double result[2];
 		int finished = 1;
+	
+		printf("Perturbing in process: %d\n",id);
 
 		perturb(current_peturbing, result);	
+
+		printf("Perturbing complete in process: %d\n",id);
 
 		int left_child = 2*id;
         int right_child = (2*id)+1;
 		int parent = id/2;
 
+		
         // busy wait for children to finish
-        if (left_child < nprocs)
+        if (left_child < nprocs){
+
+			printf("Wating for left child: %d\n",left_child);
+
             MPI_Recv(&finished, 1, MPI_INT, left_child, left_child, MPI_COMM_WORLD, &status);
-        if (right_child < nprocs)
+			
+		}
+        if (right_child < nprocs){
+
+			printf("Waiting for right child: %d\n",right_child);
+
             MPI_Recv(&finished, 1, MPI_INT, right_child, right_child, MPI_COMM_WORLD, &status);
+		}
         
         // Tell parent that the child is done
         int temp = 1;
+	
+		printf("Sending to parent %d from process: %d\n",parent,id);
         MPI_Send(&temp, 1, MPI_INT, parent, id, MPI_COMM_WORLD);
+		printf("Sending to process %d from process: %d\n",0,id);
 		MPI_Send(&temp, 1, MPI_INT, 0, id, MPI_COMM_WORLD);
 
 	}
     else{
         int temp;
-        for (i=1; i<nprocs;i++)
-            MPI_Recv(&temp, 1, MPI_INT, i, 42, MPI_COMM_WORLD, &status);
+        for (i=1; i<nprocs;i++){
+            MPI_Recv(&temp, 1, MPI_INT, i, i, MPI_COMM_WORLD, &status);
+			printf("Process %d done\n",i);
+		}
     }
     /*if (id==0){
         //start the simualtion
