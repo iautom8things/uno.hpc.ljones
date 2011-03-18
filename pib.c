@@ -138,8 +138,32 @@ int main(int argc, char** argv){
     double rejected_state[childrens_max_buff_size];
     
     setup_tree(max_buff_size, childrens_max_buff_size, previous_state, current_peturbing, accepted_state, rejected_state);
-    if (id != 0)
+
+    if (id != 0){
+//MPI_Send(&temp, 1, MPI_INT, parent, id, MPI_COMM_WORLD);
         update_state(cubes, particle_array, previous_state, current_peturbing, max_buff_size);
+
+		long double result[2];
+		int finished = 1;
+
+		perturb(current_peturbing, result);	
+
+		int left_child = 2*id;
+        int right_child = (2*id)+1;
+		int parent = id/2;
+
+        // busy wait for children to finish
+        if (left_child < nprocs)
+            MPI_Recv(&finished, 1, MPI_INT, left_child, left_child, MPI_COMM_WORLD, &status);
+        if (right_child < nprocs)
+            MPI_Recv(&finished, 1, MPI_INT, right_child, right_child, MPI_COMM_WORLD, &status);
+        
+        // Tell parent that the child is done
+        int temp = 1;
+        MPI_Send(&temp, 1, MPI_INT, parent, id, MPI_COMM_WORLD);
+		MPI_Send(&temp, 1, MPI_INT, 0, id, MPI_COMM_WORLD);
+
+	}
     else{
         int temp;
         for (i=1; i<nprocs;i++)

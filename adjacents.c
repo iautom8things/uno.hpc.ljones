@@ -7,7 +7,7 @@
  * @return 1 if the new state is acceptable, else 0
  * @author Daniel Ward
  */
-long double perturb(int to_remove_index, particle new_particle)
+long double delta_energy(int to_remove_index, particle new_particle)
 {
     int i; //iterator
 
@@ -132,6 +132,8 @@ void remove_particle(cube * a_cube, particle a_particle)
  
 	}
 
+	if(found == 'T'){
+
     //swap the last particle for the one to be removed
     a_cube->particles[index] = a_cube->particles[(a_cube->number_of_particles - 1)];
 
@@ -151,6 +153,7 @@ void remove_particle(cube * a_cube, particle a_particle)
 
     //reduce the number_of_particles counter
     (*a_cube).number_of_particles--;
+	}
 }//end remove_particle
 
 /**

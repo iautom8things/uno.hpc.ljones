@@ -60,6 +60,8 @@ void setup_tree (int max_buff_size, int childrens_max_buff_size, double *previou
             MPI_Send(rejected_state, childrens_max_buff_size, MPI_DOUBLE, right_child, id, MPI_COMM_WORLD);
         }
 
+		/* We need to do our work in between the send and the recieve 
+
         // busy wait for children to finish
         if (left_child < nprocs)
             MPI_Recv(&finished, 1, MPI_INT, left_child, left_child, MPI_COMM_WORLD, &status);
@@ -69,6 +71,8 @@ void setup_tree (int max_buff_size, int childrens_max_buff_size, double *previou
         // Tell parent that the child is done
         int temp = 1;
         MPI_Send(&temp, 1, MPI_INT, parent, id, MPI_COMM_WORLD);
+
+		*/
     } // End if not main process  
 }
 void update_state(cube *cubes, particle *particle_array, double *previous_state, double *current_peturbing, int max_buff_size){
@@ -100,12 +104,15 @@ void update_state(cube *cubes, particle *particle_array, double *previous_state,
 			particle_array[particle_index].myCube = cube_index = belongs_to_cube((int) x/10,
 													                            (int) y/10,
 															                    (int) z/10);
+
 			////// Debugging print lines
             printf("%d: Cube:%d #:%d\n", id, cube_index, cubes[cube_index].number_of_particles);
             for (j=0; j<cubes[cube_index].number_of_particles; j++)
                 printf("%d: x: %f y: %f z: %f\n", id, cubes[cube_index].particles[j].x, cubes[cube_index].particles[j].y, cubes[cube_index].particles[j].z);
             ////// End Debugging print lines
+
 			addToCube(&cubes[cube_index],particle_array[particle_index]);
+
 			////// Debugging print lines
             printf("%d: Cube:%d #:%d\n", id, cube_index, cubes[cube_index].number_of_particles);
             for (j=0; j<cubes[cube_index].number_of_particles; j++)
@@ -117,21 +124,23 @@ void update_state(cube *cubes, particle *particle_array, double *previous_state,
             i += 3;
     }
     // update the particle array with the information of the current state's particle peturbing
-    particle_index = (int)current_peturbing[0];
-	particle_array[particle_index].x = x = current_peturbing[1];
-	particle_array[particle_index].y = y = current_peturbing[2];
-	particle_array[particle_index].z = z = current_peturbing[3];
-    particle_array[particle_index].myCube = belongs_to_cube((int) x/10, (int) y/10, (int) z/10);
     
-    // Tell 0, I'm done
-    int temp = 1;
-    MPI_Send(&temp, 1, MPI_INT, 0, 42, MPI_COMM_WORLD);
 }
 
-void peturb(double *previous_state){
-    int i;
-    //perturb
-	long double delta = 0;//perturb();
+void perturb(double *current_perturbing, long double * result){
+    int i;	
+	double x,y,z;
+
+	int particle_index = (int)current_perturbing[0];
+	particle_array[particle_index].x = x = current_perturbing[1];
+	particle_array[particle_index].y = y = current_perturbing[2];
+	particle_array[particle_index].z = z = current_perturbing[3];
+    particle_array[particle_index].myCube = belongs_to_cube((int) x/10, (int) y/10, (int) z/10);    
+   
+
+	long double delta = delta_energy(particle_index,particle_array[particle_index]);
+
+	result[1] = delta;
 
 	//compare energy
 	double probability = compare_energies(delta);
@@ -140,12 +149,9 @@ void peturb(double *previous_state){
 	//use a old_particle acceptance level
 	//MONTE CARLO THAT THANG
 	if( ((rand())/(RAND_MAX+1.0)) > probability)
-	{
-	   
-	    //fail
-	    //delta_energy = 0for (i=0; i<max_buff_size;i++){
-        printf("%f, ",previous_state[i]);
-    }
+		result[0] = 0;
+	else
+		result[0] = 1;
 
 	//we should send a two element paylod to the parent
 	//1st element is the accpetance (true or flase)

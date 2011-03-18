@@ -41,7 +41,7 @@ unsigned char in_bounds(int row, int column, int height);
 int adjacents(int* adjacent_index_array, int index);
 int belongs_to_cube(double x, double y, double z);
 void remove_particle(cube * a_cube, particle a_particle);
-long double perturb(int old_index, particle new_particle);
+long double delta_energy(int old_index, particle new_particle);
 
 //Found in addtocube.c
 void addToCube(cube * a_cube, particle a_particle);
@@ -59,3 +59,4 @@ double compare_energies(long double delta);
 //Found in parallel.c
 void setup_tree (int max_buff_size, int childrens_max_buff_size, double *previous_state, double *current_peturbing, double *accepted_state, double *rejected_state);
 void update_state(cube *cubes, particle *particle_array, double *previous_state, double *current_peturbing, int max_buff_size);
+void perturb(double *current_perturbing, long double * result);
