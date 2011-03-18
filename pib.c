@@ -147,7 +147,7 @@ int main(int argc, char** argv){
 
 	    update_state(cubes, particle_array, previous_state, current_peturbing, max_buff_size);
 
-		int children_result_length = 6 * (ceil(log2(nprocs)) - ceil(log2(id)));
+		int children_result_length = 6 * ( floor(log2(nprocs-1)) - floor(log2(id)) );
 
 		int result_length = children_result_length + 6;
 
@@ -159,7 +159,7 @@ int main(int argc, char** argv){
 
 		perturb(current_peturbing, result);	
 
-		//printf("Delta energy: %Lf\n",result[1]);
+		//printf("length of data: %d from children ID: %d\n",children_result_length,id);
 
 		for(i = 2; i < 6; i++)
 			result[i] = current_peturbing[i-2];
@@ -213,16 +213,19 @@ int main(int argc, char** argv){
 		//if process 1 then print the data received
 		if(id == 1)
 		{		
+			printf("Result length: %d\n",result_length);
+			int level = 1;
 			for(i = 0; i < result_length; i++)
 			{
-				printf("Data from level %f\n",floor(log2(nprocs)));
+				printf("Data from level %f\n",floor(log2(level)));
 				printf("\tresult: %Lf\n", result[i]);
 				printf("\tdelta energy: %Lf\n", result[i+1]);
-				//printf("\tparticle index removed: %Lf\n", result[i+2]);
-				//printf("\tnew particle x: : %Lf\n", result[i+3]);
-				//printf("\tnew particle y: : %Lf\n", result[i+4]);
-				//printf("\tnew particle z: : %Lf\n", result[i+5]);
+				printf("\tparticle index removed: %Lf\n", result[i+2]);
+				printf("\tnew particle x: : %Lf\n", result[i+3]);
+				printf("\tnew particle y: : %Lf\n", result[i+4]);
+				printf("\tnew particle z: : %Lf\n", result[i+5]);
 				i += 5;
+				level=level*2;
 			}
 		}
 
