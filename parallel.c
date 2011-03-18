@@ -132,13 +132,14 @@ void perturb(double *current_perturbing, long double * result){
 	double x,y,z;
 
 	int particle_index = (int)current_perturbing[0];
-	particle_array[particle_index].x = x = current_perturbing[1];
-	particle_array[particle_index].y = y = current_perturbing[2];
-	particle_array[particle_index].z = z = current_perturbing[3];
-    particle_array[particle_index].myCube = belongs_to_cube((int) x/10, (int) y/10, (int) z/10);    
+	particle new_particle;
+	new_particle.x = x = current_perturbing[1];
+	new_particle.y = y = current_perturbing[2];
+	new_particle.z = z = current_perturbing[3];
+    new_particle.myCube = belongs_to_cube((int) x/10, (int) y/10, (int) z/10);    
    
 
-	long double delta = delta_energy(particle_index,particle_array[particle_index]);
+	long double delta = delta_energy(particle_index,new_particle);
 
 	result[1] = delta;
 

@@ -36,11 +36,7 @@ long double delta_energy(int to_remove_index, particle new_particle)
 
 	//get old cube energies
     number_of_old_cubes = adjacents(old_cube_indices, old_particle.myCube);
-	for(i = 0; i < number_of_old_cubes; i++)
-		old_cube_energies[i] = cubes[old_cube_indices[i]].energy;		
 
-	//get initial energy
-	energy_at_old_initial = calculate_cube_list_energy(cubes,old_cube_indices, number_of_old_cubes);
 
 	//change the energies of the old cubes
 	neighbor_particles_of_random = get_particles_from_cubes(old_cube_indices, number_of_old_cubes, cubes, &number_of_neighbors);
@@ -54,7 +50,6 @@ long double delta_energy(int to_remove_index, particle new_particle)
 		}
 		else{
 			long double energy = calculate_pair_energy(distance(old_particle, neighbor_particles_of_random[i]));
-			cubes[old_particle.myCube].energy -= energy;
 			energy_change_at_old += energy;			
 		}
 	}
@@ -87,7 +82,6 @@ long double delta_energy(int to_remove_index, particle new_particle)
 		}
 		else{
 			long double energy = calculate_pair_energy(distance(new_particle, neighbor_particles_at_new[i]));
-			cubes[new_particle.myCube].energy -= energy;
 			energy_change_at_new += energy;			
 		}
 	}
