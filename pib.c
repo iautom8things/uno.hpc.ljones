@@ -142,7 +142,6 @@ int main(int argc, char** argv){
 	setup_tree(max_buff_size, childrens_max_buff_size, previous_state, current_peturbing, accepted_state, rejected_state);
 
 	if (id != 0){
-//MPI_Send(&temp, 1, MPI_INT, parent, id, MPI_COMM_WORLD);
 	
 		//printf("Updateing state in process: %d\n",id);
 
@@ -155,7 +154,6 @@ int main(int argc, char** argv){
 		long double result[result_length];
 		long double finished_left[children_result_length];
 		long double finished_right[children_result_length];
-
 		
 		//printf("Perturbing in process: %d\n",id);
 
@@ -220,10 +218,10 @@ int main(int argc, char** argv){
 				printf("Data from level %f\n",floor(log2(nprocs)));
 				printf("\tresult: %Lf\n", result[i]);
 				printf("\tdelta energy: %Lf\n", result[i+1]);
-				printf("\tparticle index removed: %Lf\n", result[i+2]);
-				printf("\tnew particle x: : %Lf\n", result[i+3]);
-				printf("\tnew particle y: : %Lf\n", result[i+4]);
-				printf("\tnew particle z: : %Lf\n", result[i+5]);
+				//printf("\tparticle index removed: %Lf\n", result[i+2]);
+				//printf("\tnew particle x: : %Lf\n", result[i+3]);
+				//printf("\tnew particle y: : %Lf\n", result[i+4]);
+				//printf("\tnew particle z: : %Lf\n", result[i+5]);
 				i += 5;
 			}
 		}
