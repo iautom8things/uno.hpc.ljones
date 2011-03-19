@@ -23,6 +23,7 @@ int main(int argc, char** argv){
 	
     int seed;//seed for the random number generator
     char* output_file;
+
     if (id==0)
         output_file = "data.csv";//the default output file name
 
@@ -127,13 +128,16 @@ int main(int argc, char** argv){
     }
 ///////////////////////////////////////////////////
 
+//	do{
 
 	int max_buff_size = 4;
 	int childrens_max_buff_size = 4;
-	if (id != 1 && id != 0){
+
+	if (id != 0){
 	    max_buff_size = floor(log2(id))*4; // There's 4 double elements 
 	    childrens_max_buff_size = max_buff_size+4;
 	}
+
 	double current_peturbing[4];
 	double previous_state[max_buff_size];
 	double accepted_state[childrens_max_buff_size]; 
@@ -141,21 +145,31 @@ int main(int argc, char** argv){
 	
 	setup_tree(max_buff_size, childrens_max_buff_size, previous_state, current_peturbing, accepted_state, rejected_state);
 
-	if (id != 0){
 	
-		//printf("Updateing state in process: %d\n",id);
+		printf("Updateing state in process: %d\n",id);
 
-	    update_state(cubes, particle_array, previous_state, current_peturbing, max_buff_size);
+		if(id != 0)
+	    	update_state(cubes, particle_array, previous_state, current_peturbing, max_buff_size);
 
-		int children_result_length = 6 * ( floor(log2(nprocs-1)) - floor(log2(id)) );
+		int children_result_length;
+
+		if(id == 0)
+		 	children_result_length = 6 * floor(log2(nprocs));
+		else
+			children_result_length = 6 * ( floor(log2(nprocs)) - floor(log2(id+1)));
+
+		printf("length of process: %d children data: %d\n",id,children_result_length);
 
 		int result_length = children_result_length + 6;
 
 		long double result[result_length];
 		long double finished_left[children_result_length];
 		long double finished_right[children_result_length];
+
+		for(i = 0; i < result_length; i++)
+			result[i] = -1;
 		
-		//printf("Perturbing in process: %d\n",id);
+		printf("Perturbing in process: %d\n",id);
 
 		perturb(current_peturbing, result);	
 
@@ -164,24 +178,26 @@ int main(int argc, char** argv){
 		for(i = 2; i < 6; i++)
 			result[i] = current_peturbing[i-2];
 
-		//printf("Perturbing complete in process: %d\n",id);
+		printf("Perturbing complete in process: %d\n",id);
 
-		int left_child = 2*id;
-	    int right_child = (2*id)+1;
-		int parent = id/2;
+		int left_child = (2*id)+1;
+	    int right_child = (2*id)+2;
+
+
+		int parent = (id-1)/2;
 
 	
-	    // busy wait for children to finish
-	    if (left_child < nprocs){
+	    // busy wait for childreto finish
+	    if (left_child < (nprocs)){
 
-			//printf("Wating for left child: %d\n",left_child);
+			printf("Wating for process %d left child: %d\n",id,left_child);
 
 	        MPI_Recv(&finished_left, children_result_length, MPI_LONG_DOUBLE, left_child, left_child, MPI_COMM_WORLD, &status);
 		
 		}
-	    if (right_child < nprocs){
+	    if (right_child < (nprocs)){
 
-			//printf("Waiting for right child: %d\n",right_child);
+			printf("Waiting for process %d right child: %d\n",id,right_child);
 
 	        MPI_Recv(&finished_right, children_result_length, MPI_LONG_DOUBLE, right_child, right_child, MPI_COMM_WORLD, &status);
 		}
@@ -205,17 +221,23 @@ int main(int argc, char** argv){
 	    int temp = 1;
 	
 		//if not the root node then send my data to my parent
-		if(id != 1){
-			//printf("Sending to parent %d from process: %d\n",parent,id);
+		if(id != 0){
+			printf("Sending to parent %d from process: %d\n",parent,id);
 			MPI_Send(&result, result_length, MPI_LONG_DOUBLE, parent, id, MPI_COMM_WORLD);
 		}
 
-		//if process 1 then print the data received
-		if(id == 1)
+		//if process 0 then print the data received
+		if(id == 0)
 		{		
+			/*int temp;
+			for (i=2; i<nprocs;i++){
+			    MPI_Recv(&temp, 1, MPI_INT, i, i, MPI_COMM_WORLD, &status);
+				//printf("Process %d done\n",i);
+			}*/
+
 			printf("Result length: %d\n",result_length);
 			int level = 1;
-			for(i = 0; i < result_length; i++)
+			/*for(i = 0; i < result_length; i++)
 			{
 				printf("Data from level %f\n",floor(log2(level)));
 				printf("\tresult: %Lf\n", result[i]);
@@ -226,20 +248,10 @@ int main(int argc, char** argv){
 				printf("\tnew particle z: : %Lf\n", result[i+5]);
 				i += 5;
 				level=level*2;
-			}
-		}
+			}*/
 
-		//printf("Sending to process %d from process: %d\n",0,id);
-		MPI_Send(&temp, 1, MPI_INT, 0, id, MPI_COMM_WORLD);
-
-	}
-	else{
-	    int temp;
-	    for (i=2; i<nprocs;i++){
-	        MPI_Recv(&temp, 1, MPI_INT, i, i, MPI_COMM_WORLD, &status);
-			//printf("Process %d done\n",i);
+			
 		}
-	}
 	
     /*if (id==0){
         //start the simualtion
@@ -300,6 +312,9 @@ int main(int argc, char** argv){
     }//end if main process  */
 ///////////////////////////////////////////////////
     //do some clean up
+
+	//}while();
+
     clean(cubes);
     MPI_Finalize();
 }//end main
