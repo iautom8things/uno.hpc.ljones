@@ -3,19 +3,23 @@
 void setup_tree (int max_buff_size, int childrens_max_buff_size, double *previous_state, double *current_peturbing, double *accepted_state, double *rejected_state){
     MPI_Status status;
     
-    int finished = 0, i, j, parent = id/2;
+    int finished = 0, i, j, parent = (id-1)/2;
  
-    if (id==0){
+    /*if (id==0){
         // dummy info being sent to 1 to start
         // TODO try to send nothing or just 1 int. Really this would require a special case to be written for node 1. May be worth leaving as-is
         double temp[] = {-1, -1, -1, -1};
         // Start the tree setup and busy wait for the entire tree to be finished setting up
         MPI_Sendrecv(&temp, 4, MPI_DOUBLE, 1, 0, &finished, 1, MPI_INT, 1, 1, MPI_COMM_WORLD, &status); 
-    }
-    if (id!=0){
-        // Busy wait for parent's state
-        MPI_Recv(previous_state, max_buff_size, MPI_DOUBLE, parent, parent, MPI_COMM_WORLD, &status);
-        
+    }*/
+
+		
+		if (id!=0){
+			//printf("Process %d waiting for parent %d\n",id,parent);		    
+			// Busy wait for parent's state
+		    MPI_Recv(previous_state, max_buff_size, MPI_DOUBLE, parent, parent, MPI_COMM_WORLD, &status);
+		}
+
         // Debugging print lines
         /*printf("ID:%d\n{ ", id);
         for (i=0; i<max_buff_size;i++){
@@ -32,7 +36,7 @@ void setup_tree (int max_buff_size, int childrens_max_buff_size, double *previou
 		
         
         // copy previous_state (from parent), to be sent to children
-        if (id != 1){ // node 1 doesn't do this because it's sent a 'dummy previous state' from 0 because node 1 already has the current state
+        if (id != 0){ // node 1 doesn't do this because it's sent a 'dummy previous state' from 0 because node 1 already has the current state
             for (i=0;i<max_buff_size; i++){
                 accepted_state[i] = previous_state[i];
                 rejected_state[i] = previous_state[i];
@@ -48,32 +52,20 @@ void setup_tree (int max_buff_size, int childrens_max_buff_size, double *previou
         }
 
         // pass information to children
-        int left_child = 2*id;
-        int right_child = (2*id)+1;
+        int left_child = (2*id)+1;
+        int right_child = (2*id)+2;
          
-        if (left_child < nprocs){
+        if (left_child < (nprocs)){
             //printf("My buff: %d\tChild buff: %d\tleft_child: %d\t right: %d\n", max_buff_size, childrens_max_buff_size, left_child, right_child);
             MPI_Send(accepted_state, childrens_max_buff_size, MPI_DOUBLE, left_child, id, MPI_COMM_WORLD);
         }
-        if (right_child < nprocs){
+        if (right_child < (nprocs)){
             //printf("My buff: %d\tChild buff: %d\tleft_child: %d\t right: %d\n", max_buff_size, childrens_max_buff_size, left_child, right_child);
             MPI_Send(rejected_state, childrens_max_buff_size, MPI_DOUBLE, right_child, id, MPI_COMM_WORLD);
         }
 
-		/* We need to do our work in between the send and the recieve 
-
-        // busy wait for children to finish
-        if (left_child < nprocs)
-            MPI_Recv(&finished, 1, MPI_INT, left_child, left_child, MPI_COMM_WORLD, &status);
-        if (right_child < nprocs)
-            MPI_Recv(&finished, 1, MPI_INT, right_child, right_child, MPI_COMM_WORLD, &status);
-        
-        // Tell parent that the child is done
-        int temp = 1;
-        MPI_Send(&temp, 1, MPI_INT, parent, id, MPI_COMM_WORLD);
-
-		*/
-    } // End if not main process  
+		
+    //} // End if not main process  
 }
 void update_state(cube *cubes, particle *particle_array, double *previous_state, double *current_peturbing, int max_buff_size){
     //adjust array to parents state
