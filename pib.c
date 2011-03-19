@@ -128,7 +128,7 @@ int main(int argc, char** argv){
     }
 	///////////////////////////////////////////////////
 
-
+	/// START MPI STUFF //////////
 
 	int max_buff_size = 4;
 	int childrens_max_buff_size = 4;
@@ -234,12 +234,18 @@ int main(int argc, char** argv){
 		for(i = 0; i < result_length; i++)
 		{
 			printf("Data from level %f\n",floor(log2(level)));
-			printf("\tresult: %Lf\n", result[i]);
+			if(result[i] == 0)
+				printf("\tresult: Fail\n");
+			if(result[i] == 1)
+				printf("\tresult: Success\n");
+			if(result[i] == 11)
+				printf("\tresult: Stopped\n");
 			printf("\tdelta energy: %Lf\n", result[i+1]);
 			printf("\tparticle index removed: %Lf\n", result[i+2]);
 			printf("\tnew particle x: : %Lf\n", result[i+3]);
 			printf("\tnew particle y: : %Lf\n", result[i+4]);
 			printf("\tnew particle z: : %Lf\n", result[i+5]);
+
 			i += 5;
 			level=level*2;
 		}
