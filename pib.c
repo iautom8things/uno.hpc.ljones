@@ -126,15 +126,15 @@ int main(int argc, char** argv){
 
         calculate_cube_energy(cubes, i);
     }
-///////////////////////////////////////////////////
+	///////////////////////////////////////////////////
 
-//	do{
+
 
 	int max_buff_size = 4;
 	int childrens_max_buff_size = 4;
 
 	if (id != 0){
-	    max_buff_size = floor(log2(id))*4; // There's 4 double elements 
+	    max_buff_size = floor(log2(id+1))*4; // There's 4 double elements 
 	    childrens_max_buff_size = max_buff_size+4;
 	}
 
@@ -146,174 +146,105 @@ int main(int argc, char** argv){
 	setup_tree(max_buff_size, childrens_max_buff_size, previous_state, current_peturbing, accepted_state, rejected_state);
 
 	
-		printf("Updateing state in process: %d\n",id);
+	//printf("Updateing state in process: %d\n",id);
 
-		if(id != 0)
-	    	update_state(cubes, particle_array, previous_state, current_peturbing, max_buff_size);
+	if(id != 0)
+    	update_state(cubes, particle_array, previous_state, current_peturbing, max_buff_size);
 
-		int children_result_length;
+	int children_result_length;
 
-		if(id == 0)
-		 	children_result_length = 6 * floor(log2(nprocs));
-		else
-			children_result_length = 6 * ( floor(log2(nprocs)) - floor(log2(id+1)));
+	if(id == 0)
+	 	children_result_length = 6 * (floor(log2(nprocs)) );
+	else
+		children_result_length = 6 * ( floor(log2(nprocs)) - floor(log2(id+1)));
 
-		printf("length of process: %d children data: %d\n",id,children_result_length);
+	//printf("length of process: %d children data: %d\n",id,children_result_length);
 
-		int result_length = children_result_length + 6;
+	int result_length = children_result_length + 6;
 
-		long double result[result_length];
-		long double finished_left[children_result_length];
-		long double finished_right[children_result_length];
+	long double result[result_length];
+	long double finished_left[children_result_length];
+	long double finished_right[children_result_length];
 
-		for(i = 0; i < result_length; i++)
-			result[i] = -1;
-		
-		printf("Perturbing in process: %d\n",id);
-
-		perturb(current_peturbing, result);	
-
-		//printf("length of data: %d from children ID: %d\n",children_result_length,id);
-
-		for(i = 2; i < 6; i++)
-			result[i] = current_peturbing[i-2];
-
-		printf("Perturbing complete in process: %d\n",id);
-
-		int left_child = (2*id)+1;
-	    int right_child = (2*id)+2;
-
-
-		int parent = (id-1)/2;
-
+	for(i = 0; i < result_length; i++)
+		result[i] = -1;
 	
-	    // busy wait for childreto finish
-	    if (left_child < (nprocs)){
+	//printf("Perturbing in process: %d\n",id);
 
-			printf("Wating for process %d left child: %d\n",id,left_child);
+	perturb(current_peturbing, result);	
 
-	        MPI_Recv(&finished_left, children_result_length, MPI_LONG_DOUBLE, left_child, left_child, MPI_COMM_WORLD, &status);
-		
-		}
-	    if (right_child < (nprocs)){
+	//printf("length of data: %d from children ID: %d\n",children_result_length,id);
 
-			printf("Waiting for process %d right child: %d\n",id,right_child);
+	for(i = 2; i < 6; i++)
+		result[i] = current_peturbing[i-2];
 
-	        MPI_Recv(&finished_right, children_result_length, MPI_LONG_DOUBLE, right_child, right_child, MPI_COMM_WORLD, &status);
-		}
+	//printf("Perturbing complete in process: %d\n",id);
+
+	int left_child = (2*id)+1;
+    int right_child = (2*id)+2;
+
+
+	int parent = (id-1)/2;
+
+
+    // busy wait for childreto finish
+    if (left_child < (nprocs)){
+
+		//printf("Wating for process %d left child: %d\n",id,left_child);
+
+        MPI_Recv(&finished_left, children_result_length, MPI_LONG_DOUBLE, left_child, left_child, MPI_COMM_WORLD, &status);
 	
-		//if i succeed pick the left childs data
-		if(result[0] == 1 && (left_child < nprocs))
-		{
-			for(i = 0; i < children_result_length; i++)
-				result[i+6] = finished_left[i];
-				
-		}
+	}
+    if (right_child < (nprocs)){
 
-		//if i fail then pick the right child data
-		if(result[0] == 0 && (right_child < nprocs))
-		{
-			for(i = 0; i < children_result_length; i++)
-				result[i+6] = finished_right[i];
-		}
-	    
-	    // Tell parent that the child is done
-	    int temp = 1;
-	
-		//if not the root node then send my data to my parent
-		if(id != 0){
-			printf("Sending to parent %d from process: %d\n",parent,id);
-			MPI_Send(&result, result_length, MPI_LONG_DOUBLE, parent, id, MPI_COMM_WORLD);
-		}
+		//printf("Waiting for process %d right child: %d\n",id,right_child);
 
-		//if process 0 then print the data received
-		if(id == 0)
-		{		
-			/*int temp;
-			for (i=2; i<nprocs;i++){
-			    MPI_Recv(&temp, 1, MPI_INT, i, i, MPI_COMM_WORLD, &status);
-				//printf("Process %d done\n",i);
-			}*/
+        MPI_Recv(&finished_right, children_result_length, MPI_LONG_DOUBLE, right_child, right_child, MPI_COMM_WORLD, &status);
+	}
 
-			printf("Result length: %d\n",result_length);
-			int level = 1;
-			/*for(i = 0; i < result_length; i++)
-			{
-				printf("Data from level %f\n",floor(log2(level)));
-				printf("\tresult: %Lf\n", result[i]);
-				printf("\tdelta energy: %Lf\n", result[i+1]);
-				printf("\tparticle index removed: %Lf\n", result[i+2]);
-				printf("\tnew particle x: : %Lf\n", result[i+3]);
-				printf("\tnew particle y: : %Lf\n", result[i+4]);
-				printf("\tnew particle z: : %Lf\n", result[i+5]);
-				i += 5;
-				level=level*2;
-			}*/
-
+	//if i succeed pick the left childs data
+	if(result[0] == 1 && (left_child < nprocs))
+	{
+		for(i = 0; i < children_result_length; i++)
+			result[i+6] = finished_left[i];
 			
+	}
+
+	//if i fail then pick the right child data
+	if(result[0] == 0 && (right_child < nprocs))
+	{
+		for(i = 0; i < children_result_length; i++)
+			result[i+6] = finished_right[i];
+	}
+    
+    // Tell parent that the child is done
+    int temp = 1;
+
+	//if not the root node then send my data to my parent
+	if(id != 0){
+		//printf("Sending to parent %d from process: %d\n",parent,id);
+		MPI_Send(&result, result_length, MPI_LONG_DOUBLE, parent, id, MPI_COMM_WORLD);
+	}
+
+	//if process 0 then print the data received
+	if(id == 0)
+	{	
+		printf("Result length: %d\n",result_length);
+		int level = 1;
+		for(i = 0; i < result_length; i++)
+		{
+			printf("Data from level %f\n",floor(log2(level)));
+			printf("\tresult: %Lf\n", result[i]);
+			printf("\tdelta energy: %Lf\n", result[i+1]);
+			printf("\tparticle index removed: %Lf\n", result[i+2]);
+			printf("\tnew particle x: : %Lf\n", result[i+3]);
+			printf("\tnew particle y: : %Lf\n", result[i+4]);
+			printf("\tnew particle z: : %Lf\n", result[i+5]);
+			i += 5;
+			level=level*2;
 		}
-	
-    /*if (id==0){
-        //start the simualtion
-        printf("Starting the simulation with %d trials\n", NUMBER_OF_TRIALS);
-
-        i = 0;//reset the iterator to use the while loop
-        int unaccepted = 0;
-        int accepted = 0;
-
-
-        //open a file to save the energies, this makes it easier to graph
-        FILE * file = fopen(output_file,"w");
-
-        //do until we have the number of successes we are looking for
-        while(i < NUMBER_OF_TRIALS)
-        {
-            //the energy of the current state of the cube
-            long double old_energy = system_energy(cubes);
-
-            //if the perturb creates an acceptable state then save the energy
-            if(perturb(cubes) == 1)
-            {
-                //write the energy to file
-                fprintf(file,"Energy\t%4d\t%Lf\n",i,old_energy);
-
-                accepted++;
-
-            }//end if
-
-            else
-                unaccepted++;//if not an acceptable state then increment the counter
-
-            i++;//move the iterator
-
-            /////////// Fancy-schmancy progress bar :)
-            int twentieth = NUMBER_OF_TRIALS/20;
-            printf("\r%7d | %3d%% [",i, (i/twentieth)*5);
-            int j;
-            for (j=0;j<i/twentieth;j++){
-                printf("--");
-            }
-
-            for (j=0;j<(20-i/twentieth);j++){
-                printf("  ");
-            }
-            printf("] 100%%");
-            fflush(0);
-            /////////// End fancy-schmancy progress bar
-        }//end while
-
-        //close the file
-        fclose(file);
-
-        //print the successes and the failures
-        printf("\n");
-        printf("Accepted States: %d\n", accepted);
-        printf("Unaccepted States: %d\n" , unaccepted);
-    }//end if main process  */
-///////////////////////////////////////////////////
-    //do some clean up
-
-	//}while();
+		
+	}
 
     clean(cubes);
     MPI_Finalize();
