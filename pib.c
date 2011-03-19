@@ -186,16 +186,16 @@ int main(int argc, char** argv){
 	        MPI_Recv(&finished_right, children_result_length, MPI_LONG_DOUBLE, right_child, right_child, MPI_COMM_WORLD, &status);
 		}
 	
-		//if i fail pick the left childs data
-		if(result[0] == 0 && (left_child < nprocs))
+		//if i succeed pick the left childs data
+		if(result[0] == 1 && (left_child < nprocs))
 		{
 			for(i = 0; i < children_result_length; i++)
 				result[i+6] = finished_left[i];
 				
 		}
 
-		//if i suceed then pick the right child data
-		if(result[0] == 1 && (right_child < nprocs))
+		//if i fail then pick the right child data
+		if(result[0] == 0 && (right_child < nprocs))
 		{
 			for(i = 0; i < children_result_length; i++)
 				result[i+6] = finished_right[i];
