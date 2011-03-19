@@ -128,6 +128,9 @@ int main(int argc, char** argv){
     }
 	///////////////////////////////////////////////////
 
+	int live = 1;
+
+	do{
 	/// START MPI STUFF //////////
 
 	int max_buff_size = 4;
@@ -142,7 +145,27 @@ int main(int argc, char** argv){
 	double previous_state[max_buff_size];
 	double accepted_state[childrens_max_buff_size]; 
 	double rejected_state[childrens_max_buff_size];
+
+	//////// SAVE REVERSION INFORMATION /////////////////
+	double particle_reversion[max_buff_size + 4];
+
+	for(i = 0; i < max_buff_size; i++)
+	{
+		double index = previous_state[i];
+		particle_reversion[i] = index;
+		particle_reversion[i+1] = particle_array[index].x;
+		particle_reversion[i+2] = particle_array[index].y;
+		particle_reversion[i+3] = particle_array[index].z;
+	}
 	
+	int j = 0;
+
+	for(i = max_buff_size; i < childrens_max_buffsize; i++){
+		particle_reversion[i] = current_peturbing[j];
+		j++;
+	}
+
+	//////////////////////////////////////////////////////	
 	setup_tree(max_buff_size, childrens_max_buff_size, previous_state, current_peturbing, accepted_state, rejected_state);
 
 	
@@ -224,6 +247,50 @@ int main(int argc, char** argv){
 	if(id != 0){
 		//printf("Sending to parent %d from process: %d\n",parent,id);
 		MPI_Send(&result, result_length, MPI_LONG_DOUBLE, parent, id, MPI_COMM_WORLD);
+
+		MPI_Recv(&temp, 1, MPI_INT, 0 , id , MPI_COMM_WORLD);
+
+		//if live then revert and catch up
+		if(temp == 1)
+		{
+			int length = floor(log2(nprocs))* 6;
+			long double catch_up[length];
+
+			//revert			
+			for(i = 0; i < max_buff_size+4; i++)
+			{
+
+				if(particle_reversion[i] != 1)
+				{
+					int cube_index;
+					double x,y,z;
+					double index = particle_reversion[i];
+
+					remove_particle(&cubes[particle_array[index]].myCube,particle_array[index]);
+
+					particle_array[index].x = x = particle_reversion[i+1];
+					particle_array[index].y = y = particle_reversion[i+2];
+					particle_array[index].z = z = particle_reversion[i+3];
+					particle_array[index].myCube = cube_index = belongs_to_cube((int) x/10,
+															                        (int) y/10,
+																	                (int) z/10);
+
+					addToCube(&cubes[cube_index],particle_array[index]);
+				}
+
+				i += 3;
+			}
+
+			//wait for the catch up state
+
+			MPI_Recv(&catch_up, length, 0 , id ,MPI_COMM_WORLD);
+
+			//update the state to catch
+		}
+
+		//if die then exit
+		if(temp == 0)
+			live = 0;
 	}
 
 	//if process 0 then print the data received
@@ -250,7 +317,32 @@ int main(int argc, char** argv){
 			level=level*2;
 		}
 		
+		TRIALS -= (int)floor(log2(nprocs));
+		
+		//send die to everyone
+		if(TRIALS < 0)
+		{
+			temp = 0;
+			live == 0;
+
+			for(i = 1; i < nprocs; i++)
+				MPI_Send(&temp, 1, i, i, MPI_COMM_WORLD);
+
+		}
+		//send live and the catch up state
+		else
+		{
+			temp = 1;
+			for(i = 1; i < nprocs; i++)
+				MPI_Send(&temp, 1, i, i, MPI_COMM_WORLD);
+
+			for(i = 1; i < nprocs; i++)
+				MPI_Send(&result, result_length, i, i, MPI_COMM_WORLD);
+		}
+		
 	}
+
+	}while(live == 1);
 
     clean(cubes);
     MPI_Finalize();
