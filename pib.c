@@ -23,6 +23,7 @@ int main(int argc, char** argv){
 	
     int seed;//seed for the random number generator
     char* output_file;
+	int starting_trial_amount;
 
     if (id==0)
         output_file = "data.csv";//the default output file name
@@ -78,7 +79,7 @@ int main(int argc, char** argv){
 		
     srand(seed); // seed the random number generator
     double random_num = rand(); //get a random number
-
+	starting_trial_amount = NUMBER_OF_TRIALS;
 
 	//double energies[NUMBER_OF_TRIALS];//store accepted energies
     //cube cubes[TOTAL_NUMBER_OF_CUBES]; // allocate an array for our cubes
@@ -126,6 +127,15 @@ int main(int argc, char** argv){
 
         calculate_cube_energy(i);
     }
+
+	//-------Intialise the system energies for process 0------//
+	int energy_counter = 1;
+	int max_number_of_energies = NUMBER_OF_TRIALS + (NUMBER_OF_TRIALS/2);
+	long double the_system_energy[max_number_of_energies];
+	the_system_energy[0] = system_energy(cubes);
+
+
+	//////---------START MPI STUFF---------///////
 	
     int max_buff_size = 4;
     int childrens_max_buff_size = 4;
@@ -140,12 +150,13 @@ int main(int argc, char** argv){
     double rejected_state[childrens_max_buff_size];
     double particle_reversion[childrens_max_buff_size];
     
-    int children_result_length = 6 * (floor(log2(nprocs)) ); // The number of items to be received by 'the rest of the tree', bellow the current node. (remaining height*6)
+    int children_result_length = 6 * (floor(log2(nprocs)) ); // The number of items to be received by 'the rest of the tree', 
+															 // bellow the current node. (remaining height*6)
     
     if(id != 0)
         children_result_length -= 6 * floor(log2(id+1)); // If not root, subtract the difference in 
 
-    int max_length = (floor(log2(nprocs))* 6)+6;
+    int max_length = (floor(log2(nprocs))* 6) + 6;
     int result_length = children_result_length + 6;
     long double result[result_length];
     long double finished_left[children_result_length];
@@ -211,7 +222,8 @@ int main(int argc, char** argv){
 
 		    //----- If live then revert and catch up -----//
 		    if(live == 1) {
-			    long double catch_up[max_length];
+				int length = max_length - ((max_length/6)*2);
+			    double catch_up[length];
 
 			    //----- Revert -----//		
 			    for(i = 0; i < max_buff_size+4; i++) {
@@ -233,35 +245,41 @@ int main(int argc, char** argv){
 				    i += 3;
 			    } // END for loop
 
-			    //----- Wait for the catch up state -----//
-			    MPI_Recv(&catch_up, max_length, MPI_LONG_DOUBLE, 0 , id ,MPI_COMM_WORLD, &status);
-			    //update the state to catch
+			    //----- Wait for the catch up state -----//				
+			    MPI_Recv(&catch_up, length, MPI_DOUBLE, 0 , id ,MPI_COMM_WORLD, &status);
+
+				//-----UPDATE THE STATE TO CATCH UP WITH PROCESS 0----//
+				update_state(catch_up,length);
+			    
 		    } // END if (live == 1)
 	    } // END if (id != 0)
 
 	    //----- If process 0 then print the data received -----//
 	    if(id == 0) {	
-		    printf("Result length: %d\n",result_length);
+		    //printf("Result length: %d\n",result_length);
 		    int level = 1;
 		    for(i = 0; i < result_length; i++) {
-			    printf("Data from level %d\n",(int)floor(log2(level)));
+			    /*printf("Data from level %d\n",(int)floor(log2(level)));
 			    if(result[i] == 0)
 				    printf("\tresult: Fail\n");
 			    else if(result[i] == 1)
 				    printf("\tresult: Success\n");
 			    else if(result[i] == -1)
-				    printf("\tresult: Stopped\n");
-			    printf("\tdelta energy: %Lf\n", result[i+1]);
+				    printf("\tresult: Stopped\n");*/
+				the_system_energy[energy_counter] = the_system_energy[energy_counter - 1] + result[i+1];
+				energy_counter++;
+			    /*printf("\tdelta energy: %Lf\n", result[i+1]);
 			    printf("\tparticle index removed: %d\n", (int)result[i+2]);
 			    printf("\tnew particle x: : %Lf\n", result[i+3]);
 			    printf("\tnew particle y: : %Lf\n", result[i+4]);
 			    printf("\tnew particle z: : %Lf\n", result[i+5]);
-
+				*/
 			    i += 5;
 			    level *= 2;
 		    } // END for loop
 		
-		    NUMBER_OF_TRIALS -= (int)floor(log2(nprocs))+1;
+		    NUMBER_OF_TRIALS -= (int)floor(log2(nprocs));
+
             printf("NUMTRIALS: %d\n", NUMBER_OF_TRIALS);
             int temp;
 		    if(NUMBER_OF_TRIALS < 1) {
@@ -277,11 +295,56 @@ int main(int argc, char** argv){
 			    //----- To all processes to continue, send them the information to catch up to root -----//
 			    for(i = 1; i < nprocs; i++){
 				    MPI_Send(&temp, 1, MPI_INT, i, i, MPI_COMM_WORLD);
-				    MPI_Send(&result, result_length, MPI_LONG_DOUBLE, i, i, MPI_COMM_WORLD);
+
+					int length = max_length - ((max_length/6)*2);
+					double parsed_return[length];
+					
+					//-----PARSE THE RESULT DATA FOR THE CHILDREN-----//
+					int k = 0;
+					for(j = 2; j < max_length; j++){
+						parsed_return[k] = (double)result[j];
+						parsed_return[k+1] = (double)result[j+1];
+						parsed_return[k+2] = (double)result[j+2];
+						parsed_return[k+3] = (double)result[j+3];
+						k+=4;
+						j+=5;						
+					}
+
+					//-----SEND THE PARSED DATA------//
+				    MPI_Send(&parsed_return, length, MPI_DOUBLE, i, i, MPI_COMM_WORLD);
 			    }
-		    } // END else
+
+				//----------PRINT THE ENERGIES-------------//
+				//for(i = 0; i< energy_counter; i++)
+				///	printf("Energy %3d: %Lf\n",i,the_system_energy[i]);
+
+				//-----------WRITE THE DATA TO A FILE----------//
+				FILE * file = fopen(output_file,"w");
+
+				for(i = 0; i< energy_counter; i++)
+					fprintf(file,"Energy\t%3d\t%Lf\n",i,the_system_energy[i]);
+				
+				fclose(file);
+				//----------------CLOSE THE FILE--------------//
+/*
+				int count = starting_trial_amount-NUMBER_OF_TRIALS;
+				int twentieth = count/20;
+				printf("%d : %d\n", count, twentieth);
+				printf("\r%7d | %3d%% [",count, (count/twentieth)*5);
+	
+				for (j=0;j<count/twentieth;j++){
+				    printf("--");
+				}
+
+				for (j=0;j<(20-count/twentieth);j++){
+				    printf("  ");
+				}
+				printf("] 100%%");
+				fflush(0);
+*/
+				} // END else
 		
-	    } // END if (id == 0)
+			} // END if (id == 0)
 
 	}while(live == 1);
 
