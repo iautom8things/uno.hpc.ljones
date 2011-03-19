@@ -151,7 +151,7 @@ int main(int argc, char** argv){
 
 	for(i = 0; i < max_buff_size; i++)
 	{
-		double index = previous_state[i];
+		int index = (int)previous_state[i];
 		particle_reversion[i] = index;
 		particle_reversion[i+1] = particle_array[index].x;
 		particle_reversion[i+2] = particle_array[index].y;
@@ -160,7 +160,7 @@ int main(int argc, char** argv){
 	
 	int j = 0;
 
-	for(i = max_buff_size; i < childrens_max_buffsize; i++){
+	for(i = max_buff_size; i < childrens_max_buff_size; i++){
 		particle_reversion[i] = current_peturbing[j];
 		j++;
 	}
@@ -248,7 +248,7 @@ int main(int argc, char** argv){
 		//printf("Sending to parent %d from process: %d\n",parent,id);
 		MPI_Send(&result, result_length, MPI_LONG_DOUBLE, parent, id, MPI_COMM_WORLD);
 
-		MPI_Recv(&temp, 1, MPI_INT, 0 , id , MPI_COMM_WORLD);
+		MPI_Recv(&temp, 1, MPI_INT, 0 , id , MPI_COMM_WORLD, &status);
 
 		//if live then revert and catch up
 		if(temp == 1)
@@ -264,9 +264,9 @@ int main(int argc, char** argv){
 				{
 					int cube_index;
 					double x,y,z;
-					double index = particle_reversion[i];
+					int index = (int)particle_reversion[i];
 
-					remove_particle(&cubes[particle_array[index]].myCube,particle_array[index]);
+					remove_particle(&cubes[particle_array[index].myCube],particle_array[index]);
 
 					particle_array[index].x = x = particle_reversion[i+1];
 					particle_array[index].y = y = particle_reversion[i+2];
@@ -283,7 +283,7 @@ int main(int argc, char** argv){
 
 			//wait for the catch up state
 
-			MPI_Recv(&catch_up, length, 0 , id ,MPI_COMM_WORLD);
+			MPI_Recv(&catch_up, length, MPI_LONG_DOUBLE, 0 , id ,MPI_COMM_WORLD, &status);
 
 			//update the state to catch
 		}
@@ -317,16 +317,16 @@ int main(int argc, char** argv){
 			level=level*2;
 		}
 		
-		TRIALS -= (int)floor(log2(nprocs));
+		NUMBER_OF_TRIALS -= (int)floor(log2(nprocs));
 		
 		//send die to everyone
-		if(TRIALS < 0)
+		if(NUMBER_OF_TRIALS < 0)
 		{
 			temp = 0;
 			live == 0;
 
 			for(i = 1; i < nprocs; i++)
-				MPI_Send(&temp, 1, i, i, MPI_COMM_WORLD);
+				MPI_Send(&temp, 1, MPI_INT, i, i, MPI_COMM_WORLD);
 
 		}
 		//send live and the catch up state
@@ -334,10 +334,10 @@ int main(int argc, char** argv){
 		{
 			temp = 1;
 			for(i = 1; i < nprocs; i++)
-				MPI_Send(&temp, 1, i, i, MPI_COMM_WORLD);
+				MPI_Send(&temp, 1, MPI_INT, i, i, MPI_COMM_WORLD);
 
 			for(i = 1; i < nprocs; i++)
-				MPI_Send(&result, result_length, i, i, MPI_COMM_WORLD);
+				MPI_Send(&result, result_length, MPI_LONG_DOUBLE, i, i, MPI_COMM_WORLD);
 		}
 		
 	}
