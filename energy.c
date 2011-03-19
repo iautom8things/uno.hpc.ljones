@@ -8,7 +8,7 @@
  * @param cube_index The cube at the given index to calculate energy
  * @author Manuel Zubieta
  */
-void calculate_cube_energy(cube *cubes, int cube_index){
+void calculate_cube_energy(int cube_index){
 
     //a pointer the the cube that we need to calulate energy for
     cube * c = &cubes[cube_index];
@@ -129,7 +129,7 @@ long double system_energy(cube * cubes)
  * @return The sum of the enrgey of the cubes
  * @author Daniel Ward
  */
-long double calculate_cube_list_energy(cube* cubes, int * cube_numbers, int length){
+long double calculate_cube_list_energy(int * cube_numbers, int length){
 
     int i;
     long double energy = 0.0;

@@ -50,13 +50,13 @@ void addToCube(cube * a_cube, particle a_particle);
 double distance(particle a, particle b);
 
 //Found in energy.c
-long double system_energy(cube * cubes);
+long double system_energy();
 long double calculate_pair_energy(double distance);
-long double calculate_cube_list_energy(cube* cubes, int * cube_numbers, int length);
-void calculate_cube_energy(cube *cubes, int cube_index);
+long double calculate_cube_list_energy(int * cube_numbers, int length);
+void calculate_cube_energy(int cube_index);
 double compare_energies(long double delta);
 
 //Found in parallel.c
 void setup_tree (int max_buff_size, int childrens_max_buff_size, double *previous_state, double *current_peturbing, double *accepted_state, double *rejected_state);
-void update_state(cube *cubes, particle *particle_array, double *previous_state, double *current_peturbing, int max_buff_size);
+void update_state(double *previous_state, int max_buff_size);
 void perturb(double *current_perturbing, long double * result);

@@ -49,7 +49,7 @@ void setup_tree (int max_buff_size, int childrens_max_buff_size, double *previou
 }
 
 
-void update_state(cube *cubes, particle *particle_array, double *previous_state, double *current_peturbing, int max_buff_size){
+void update_state(double *previous_state, int max_buff_size){
 
     //adjust array to parents state
     int particle_index, i, j, cube_index;
@@ -89,8 +89,7 @@ void perturb(double *current_perturbing, long double * result){
 	new_particle.y = y = current_perturbing[2];
 	new_particle.z = z = current_perturbing[3];
     new_particle.myCube = belongs_to_cube((int) x/10, (int) y/10, (int) z/10);    
-  
-
+    
 	long double delta = delta_energy(particle_index,new_particle);
 
 	result[1] = delta;
