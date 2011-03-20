@@ -49,7 +49,7 @@ int main(int argc, char** argv){
         }
         if(strcmp(argv[i],"-seed") == 0)
         {
-                seed = atoi(argv[i+1])+id; //might want to differentiate the seeds after the initial setup of the box
+                seed = atoi(argv[i+1]); //might want to differentiate the seeds after the initial setup of the box
                 arguments_found++;
         }
         if(strcmp(argv[i],"-o") == 0)
@@ -127,10 +127,10 @@ int main(int argc, char** argv){
 
         calculate_cube_energy(i);
     }
-
+    srand(seed+id);
 	//-------Intialise the system energies for process 0------//
 	int energy_counter = 1;
-	int max_number_of_energies = NUMBER_OF_TRIALS + (NUMBER_OF_TRIALS/2);
+    int max_number_of_energies = NUMBER_OF_TRIALS+ (NUMBER_OF_TRIALS/2);
 	long double the_system_energy[max_number_of_energies];
 	the_system_energy[0] = system_energy(cubes);
 
@@ -233,7 +233,7 @@ int main(int argc, char** argv){
 					    double x,y,z;
 					    int index = (int)particle_reversion[i];
 
-					    remove_particle(&cubes[particle_array[index].myCube],particle_array[index]);
+					    remove_particle(&cubes[particle_array[index].myCube], particle_array[index]);
 
 					    particle_array[index].x = x = particle_reversion[i+1];
 					    particle_array[index].y = y = particle_reversion[i+2];
@@ -259,6 +259,7 @@ int main(int argc, char** argv){
 		    //printf("Result length: %d\n",result_length);
 		    int level = 1;
 		    for(i = 0; i < result_length; i++) {
+		        
 			    /*printf("Data from level %d\n",(int)floor(log2(level)));
 			    if(result[i] == 0)
 				    printf("\tresult: Fail\n");
@@ -266,14 +267,17 @@ int main(int argc, char** argv){
 				    printf("\tresult: Success\n");
 			    else if(result[i] == -1)
 				    printf("\tresult: Stopped\n");*/
+				    
 				the_system_energy[energy_counter] = the_system_energy[energy_counter - 1] + result[i+1];
 				energy_counter++;
+				
 			    /*printf("\tdelta energy: %Lf\n", result[i+1]);
 			    printf("\tparticle index removed: %d\n", (int)result[i+2]);
 			    printf("\tnew particle x: : %Lf\n", result[i+3]);
 			    printf("\tnew particle y: : %Lf\n", result[i+4]);
 			    printf("\tnew particle z: : %Lf\n", result[i+5]);
 				*/
+				
 			    i += 5;
 			    level *= 2;
 		    } // END for loop
@@ -347,7 +351,7 @@ int main(int argc, char** argv){
 			} // END if (id == 0)
 
 	}while(live == 1);
-
+     
     clean(cubes);
     MPI_Finalize();
 }//end main
