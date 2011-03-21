@@ -130,7 +130,7 @@ int main(int argc, char** argv){
     srand(seed+id);
 	//-------Intialise the system energies for process 0------//
 	int energy_counter = 1;
-    int max_number_of_energies = NUMBER_OF_TRIALS;
+    int max_number_of_energies = NUMBER_OF_TRIALS + 1;
 	long double the_system_energy[max_number_of_energies];
 	the_system_energy[0] = system_energy(cubes);
 
@@ -274,7 +274,7 @@ int main(int argc, char** argv){
                     
 			    i += 5;
 		    } // END for loop
-            printf(" ]\n");
+            printf(" ]\t%d\t%Lf\n", energy_counter,the_system_energy[energy_counter-1]);
             remaining_trials -= log2(level);
             printf("NUMTRIALS: %d\n", remaining_trials);
             
@@ -315,14 +315,6 @@ int main(int argc, char** argv){
 				//for(i = 0; i< energy_counter; i++)
 				///	printf("Energy %3d: %Lf\n",i,the_system_energy[i]);
 
-				//-----------WRITE THE DATA TO A FILE----------//
-				FILE * file = fopen(output_file,"w");
-
-				for(i = 0; i< NUMBER_OF_TRIALS; i++)
-					fprintf(file,"Energy\t%3d\t%Lf\n",i,the_system_energy[i]);
-				
-				fclose(file);
-				//----------------CLOSE THE FILE--------------//
 /*
 				int count = starting_trial_amount-NUMBER_OF_TRIALS;
 				int twentieth = count/20;
@@ -344,6 +336,15 @@ int main(int argc, char** argv){
 			} // END if (id == 0)
 
 	}while(live > 0);
+	if (id==0){
+	    //-----------WRITE THE DATA TO A FILE----------//
+		FILE * file = fopen(output_file,"w");
+		for(i = 0; i< max_number_of_energies; i++)
+			fprintf(file,"Energy\t%3d\t%Lf\n",i,the_system_energy[i]);
+		
+		fclose(file);
+		//----------------CLOSE THE FILE--------------//
+	}
     clean(cubes);
     MPI_Finalize();
 }//end main
