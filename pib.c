@@ -318,20 +318,22 @@ int main(int argc, char** argv){
                 
 
 			} // END else
-		    count = NUMBER_OF_TRIALS-remaining_trials;
-			twentieth = NUMBER_OF_TRIALS/20;
-			//printf("%d : %d\n", count, twentieth);
-			printf("\r%7d | %3d%% [",count, (count/twentieth)*5);
+/*
+            count = NUMBER_OF_TRIALS-remaining_trials;
+            twentieth = NUMBER_OF_TRIALS/20;
+            //printf("%d : %d\n", count, twentieth);
+            printf("\r%7d | %3d%% [",count, (count/twentieth)*5);
 
-			for (j=0;j<count/twentieth;j++){
-			    printf("--");
-			}
+            for (j=0;j<count/twentieth;j++){
+                printf("--");
+            }
 
-			for (j=0;j<(20-count/twentieth);j++){
-			    printf("  ");
-			}
-			printf("] 100%%");
-			fflush(0);
+            for (j=0;j<(20-count/twentieth);j++){
+                printf("  ");
+            }
+            printf("] 100%%");
+            fflush(0);*/
+
 		} // END if (id == 0)
 
 	}while(live > 0);
@@ -345,6 +347,8 @@ int main(int argc, char** argv){
 		fclose(file);
 		//----------------CLOSE THE FILE--------------//
 	}
+    //for(i=0; i<NUMBER_OF_PARTICLES; i++)
+    printf("%d: x:%f y:%f z:%f", 0, partical_array[0].x,partical_array[0].y,partical_array[0].z);
     clean(cubes);
     MPI_Finalize();
 }//end main
