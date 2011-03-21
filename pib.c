@@ -166,6 +166,8 @@ int main(int argc, char** argv){
     int parent = (id-1)/2;
     int live = NUMBER_OF_TRIALS;
     int remaining_trials = NUMBER_OF_TRIALS;
+    int count;
+    int twentieth;
     
 	do{ // While live > 0;
 	    
@@ -263,20 +265,20 @@ int main(int argc, char** argv){
 	    //----- If process 0 then print the data received -----//
 	    if(id == 0) {	
 		    int level = 1;
-            printf("[ ");
+            //printf("[ ");
 		    for(i = 0; i < result_length; i++) {
 		        if (result[i] != -1){ // Skip 'empty' results: This is when we don't have a full tree, and our path leads to a node on the level above the non-complete level
                     the_system_energy[energy_counter] = the_system_energy[energy_counter - 1] + result[i+1];
-                    printf("%LF, ", result[i+1]);
+                    //printf("%LF, ", result[i+1]);
 				    energy_counter++;
 				    level *= 2;
 			    }
                     
 			    i += 5;
 		    } // END for loop
-            printf(" ]\t%d\t%Lf\n", energy_counter,the_system_energy[energy_counter-1]);
+            //printf(" ]\t%d\t%Lf\n", energy_counter,the_system_energy[energy_counter-1]);
             remaining_trials -= log2(level);
-            printf("NUMTRIALS: %d\n", remaining_trials);
+            //printf("NUMTRIALS: %d\n", remaining_trials);
             
                 
             
@@ -311,32 +313,30 @@ int main(int argc, char** argv){
 				    MPI_Send(&parsed_return, length, MPI_DOUBLE, i, i, MPI_COMM_WORLD);
 			    }
 
-				//----------PRINT THE ENERGIES-------------//
-				//for(i = 0; i< energy_counter; i++)
-				///	printf("Energy %3d: %Lf\n",i,the_system_energy[i]);
+				
 
-/*
-				int count = starting_trial_amount-NUMBER_OF_TRIALS;
-				int twentieth = count/20;
-				printf("%d : %d\n", count, twentieth);
-				printf("\r%7d | %3d%% [",count, (count/twentieth)*5);
-	
-				for (j=0;j<count/twentieth;j++){
-				    printf("--");
-				}
+                
 
-				for (j=0;j<(20-count/twentieth);j++){
-				    printf("  ");
-				}
-				printf("] 100%%");
-				fflush(0);
-*/
-				} // END else
-		
-			} // END if (id == 0)
+			} // END else
+		    count = NUMBER_OF_TRIALS-remaining_trials;
+			twentieth = NUMBER_OF_TRIALS/20;
+			//printf("%d : %d\n", count, twentieth);
+			printf("\r%7d | %3d%% [",count, (count/twentieth)*5);
+
+			for (j=0;j<count/twentieth;j++){
+			    printf("--");
+			}
+
+			for (j=0;j<(20-count/twentieth);j++){
+			    printf("  ");
+			}
+			printf("] 100%%");
+			fflush(0);
+		} // END if (id == 0)
 
 	}while(live > 0);
 	if (id==0){
+        printf("\n");
 	    //-----------WRITE THE DATA TO A FILE----------//
 		FILE * file = fopen(output_file,"w");
 		for(i = 0; i< max_number_of_energies; i++)
