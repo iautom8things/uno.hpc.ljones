@@ -130,7 +130,7 @@ int main(int argc, char** argv){
     srand(seed+id);
 	//-------Intialise the system energies for process 0------//
 	int energy_counter = 1;
-    int max_number_of_energies = NUMBER_OF_TRIALS+ (NUMBER_OF_TRIALS/2);
+    int max_number_of_energies = NUMBER_OF_TRIALS;
 	long double the_system_energy[max_number_of_energies];
 	the_system_energy[0] = system_energy(cubes);
 
@@ -149,14 +149,14 @@ int main(int argc, char** argv){
     double accepted_state[childrens_max_buff_size]; 
     double rejected_state[childrens_max_buff_size];
     double particle_reversion[childrens_max_buff_size];
-    
-    int children_result_length = 6 * (floor(log2(nprocs)) ); // The number of items to be received by 'the rest of the tree', 
+    int tree_height = floor(log2(nprocs))+1;
+    int children_result_length = 6 * (tree_height-1); // The number of items to be received by 'the rest of the tree', 
 															 // bellow the current node. (remaining height*6)
     
     if(id != 0)
         children_result_length -= 6 * floor(log2(id+1)); // If not root, subtract the difference in 
-
-    int max_length = (floor(log2(nprocs))* 6) + 6;
+    
+    int max_length = tree_height * 6;
     int result_length = children_result_length + 6;
     long double result[result_length];
     long double finished_left[children_result_length];
@@ -164,12 +164,18 @@ int main(int argc, char** argv){
     int left_child = (2*id)+1;
     int right_child = (2*id)+2;
     int parent = (id-1)/2;
-    int live = 1;
+    int live = NUMBER_OF_TRIALS;
+    int remaining_trials = NUMBER_OF_TRIALS;
     
-	do{ // While live == 1;
-
+	do{ // While live > 0;
+	    
+	    if (remaining_trials / tree_height > 0)
+            usable_procs = nprocs;
+        else
+            usable_procs = pow(2,remaining_trials % tree_height)-1;
         //----- Setup the tree so each node picks a particle to move (old, new location) and informs children -----//
-	    setup_tree(max_buff_size, childrens_max_buff_size, previous_state, current_peturbing, accepted_state, rejected_state);
+	   if (id < usable_procs)
+	       setup_tree(max_buff_size, childrens_max_buff_size, previous_state, current_peturbing, accepted_state, rejected_state);
 	    
 	    //----- Save the information of the particles we remove so we can later revert back -----//
         for(i = 0; i < max_buff_size; i++) {
@@ -186,30 +192,31 @@ int main(int argc, char** argv){
 		    particle_reversion[i] = current_peturbing[j++];
 		
 		//----- Update each nodes particle array and cubes so that the they reflect the state given by the parent node -----//    
-	    if(id != 0)
+	    if(id != 0 && id < usable_procs)
     	    update_state(previous_state, max_buff_size);
 
 	    for(i = 0; i < result_length; i++)
 		    result[i] = -1;
 	    
 	    //----- Each node peturbs a particle: move a particle from old to new location, calculate delta energy, determine result -----//
-	    perturb(current_peturbing, result);	
+	   if (id<usable_procs)
+	       perturb(current_peturbing, result);	
 
 	    for(i = 0; i < 4; i++)
 		    result[i+2] = current_peturbing[i];
  
         //----- Busy wait for children to finish -----//
-        if (left_child < (nprocs))
+        if (left_child < usable_procs)
             MPI_Recv(&finished_left, children_result_length, MPI_LONG_DOUBLE, left_child, left_child, MPI_COMM_WORLD, &status);
-        if (right_child < (nprocs))
+        if (right_child < usable_procs)
             MPI_Recv(&finished_right, children_result_length, MPI_LONG_DOUBLE, right_child, right_child, MPI_COMM_WORLD, &status);
 
 	    //----- Depending on the result of a node's peturbing, append the appropriate info from children -----//
-	    if(result[0] == 1 && (left_child < nprocs)) { // If the peturbing at a node is SUCCESSFULL, choose the LEFT_CHILD
+	    if(result[0] == 1 && (left_child < usable_procs)) { // If the peturbing at a node is SUCCESSFULL, choose the LEFT_CHILD
 		    for(i = 0; i < children_result_length; i++)
 			    result[i+6] = finished_left[i];
 	    }
-	    if(result[0] == 0 && (right_child < nprocs)) { // If the peturbing at a node is a FAILURE, choose the RIGHT_CHILD
+	    else if(result[0] == 0 && (right_child < usable_procs)) { // If the peturbing at a node is a FAILURE, choose the RIGHT_CHILD
 		    for(i = 0; i < children_result_length; i++)
 			    result[i+6] = finished_right[i];
 		}
@@ -217,11 +224,11 @@ int main(int argc, char** argv){
 	    //----- If not the root node then send my data to my parent -----//
 	    if(id != 0) {
 		    MPI_Send(&result, result_length, MPI_LONG_DOUBLE, parent, id, MPI_COMM_WORLD);
-
 		    MPI_Recv(&live, 1, MPI_INT, 0 , id , MPI_COMM_WORLD, &status);
+            remaining_trials = live;
 
 		    //----- If live then revert and catch up -----//
-		    if(live == 1) {
+		    if(live > 0) {
 				int length = max_length - ((max_length/6)*2);
 			    double catch_up[length];
 
@@ -247,58 +254,44 @@ int main(int argc, char** argv){
 
 			    //----- Wait for the catch up state -----//				
 			    MPI_Recv(&catch_up, length, MPI_DOUBLE, 0 , id ,MPI_COMM_WORLD, &status);
-
 				//-----UPDATE THE STATE TO CATCH UP WITH PROCESS 0----//
 				update_state(catch_up,length);
 			    
 		    } // END if (live == 1)
 	    } // END if (id != 0)
-
+        
 	    //----- If process 0 then print the data received -----//
 	    if(id == 0) {	
-		    //printf("Result length: %d\n",result_length);
 		    int level = 1;
+            printf("[ ");
 		    for(i = 0; i < result_length; i++) {
-		        
-			    /*printf("Data from level %d\n",(int)floor(log2(level)));
-			    if(result[i] == 0)
-				    printf("\tresult: Fail\n");
-			    else if(result[i] == 1)
-				    printf("\tresult: Success\n");
-			    else if(result[i] == -1)
-				    printf("\tresult: Stopped\n");*/
-				    
-				the_system_energy[energy_counter] = the_system_energy[energy_counter - 1] + result[i+1];
-				energy_counter++;
-				
-			    /*printf("\tdelta energy: %Lf\n", result[i+1]);
-			    printf("\tparticle index removed: %d\n", (int)result[i+2]);
-			    printf("\tnew particle x: : %Lf\n", result[i+3]);
-			    printf("\tnew particle y: : %Lf\n", result[i+4]);
-			    printf("\tnew particle z: : %Lf\n", result[i+5]);
-				*/
-				
+		        if (result[i] != -1){ // Skip 'empty' results: This is when we don't have a full tree, and our path leads to a node on the level above the non-complete level
+                    the_system_energy[energy_counter] = the_system_energy[energy_counter - 1] + result[i+1];
+                    printf("%LF, ", result[i+1]);
+				    energy_counter++;
+				    level *= 2;
+			    }
+                    
 			    i += 5;
-			    level *= 2;
 		    } // END for loop
-		
-		    NUMBER_OF_TRIALS -= (int)floor(log2(nprocs));
+            printf(" ]\n");
+            remaining_trials -= log2(level);
+            printf("NUMTRIALS: %d\n", remaining_trials);
+            
+                
+            
+            live = remaining_trials;
+		    if(remaining_trials < 1) {
 
-            printf("NUMTRIALS: %d\n", NUMBER_OF_TRIALS);
-            int temp;
-		    if(NUMBER_OF_TRIALS < 1) {
-			    temp = 0;
-			    live = 0;
                 //----- We're out of trials, so kill all the processes -----//
 			    for(i = 1; i < nprocs; i++)
-				    MPI_Send(&temp, 1, MPI_INT, i, i, MPI_COMM_WORLD);
+				    MPI_Send(&live, 1, MPI_INT, i, i, MPI_COMM_WORLD);
 
 		    }
 		    else {
-			    temp = 1;
 			    //----- To all processes to continue, send them the information to catch up to root -----//
 			    for(i = 1; i < nprocs; i++){
-				    MPI_Send(&temp, 1, MPI_INT, i, i, MPI_COMM_WORLD);
+				    MPI_Send(&live, 1, MPI_INT, i, i, MPI_COMM_WORLD);
 
 					int length = max_length - ((max_length/6)*2);
 					double parsed_return[length];
@@ -325,7 +318,7 @@ int main(int argc, char** argv){
 				//-----------WRITE THE DATA TO A FILE----------//
 				FILE * file = fopen(output_file,"w");
 
-				for(i = 0; i< energy_counter; i++)
+				for(i = 0; i< NUMBER_OF_TRIALS; i++)
 					fprintf(file,"Energy\t%3d\t%Lf\n",i,the_system_energy[i]);
 				
 				fclose(file);
@@ -350,8 +343,7 @@ int main(int argc, char** argv){
 		
 			} // END if (id == 0)
 
-	}while(live == 1);
-     
+	}while(live > 0);
     clean(cubes);
     MPI_Finalize();
 }//end main

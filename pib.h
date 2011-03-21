@@ -12,6 +12,7 @@
 #define MAX_NUMBER_OF_ADJACENTS 26
 #define MIN_DISTANCE 0.3
 int NUMBER_OF_TRIALS; //number of trials to run
+int usable_procs; // the number of processors to use per exectution of the tree
 int TEMPERATURE; //temperature of simulation in kelvin
 
 int id, nprocs; // MPI

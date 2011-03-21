@@ -38,11 +38,11 @@ void setup_tree (int max_buff_size, int childrens_max_buff_size, double *previou
     int left_child = (2*id)+1;
     int right_child = (2*id)+2;
      
-    if (left_child < (nprocs)){
+    if (left_child < usable_procs){
         //printf("My buff: %d\tChild buff: %d\tleft_child: %d\t right: %d\n", max_buff_size, childrens_max_buff_size, left_child, right_child);
         MPI_Send(accepted_state, childrens_max_buff_size, MPI_DOUBLE, left_child, id, MPI_COMM_WORLD);
     }
-    if (right_child < (nprocs)){
+    if (right_child < usable_procs){
         //printf("My buff: %d\tChild buff: %d\tleft_child: %d\t right: %d\n", max_buff_size, childrens_max_buff_size, left_child, right_child);
         MPI_Send(rejected_state, childrens_max_buff_size, MPI_DOUBLE, right_child, id, MPI_COMM_WORLD);
     }
@@ -92,7 +92,6 @@ void perturb(double *current_perturbing, long double * result){
     
 	long double delta = delta_energy(particle_index,new_particle);
 
-	result[1] = delta;
 
 	//compare energy
 	double probability = compare_energies(delta);
@@ -100,10 +99,14 @@ void perturb(double *current_perturbing, long double * result){
     //if not acceptable then revert the changes
 	//use a old_particle acceptance level
 	//MONTE CARLO THAT THANG
-	if( ((rand())/(RAND_MAX+1.0)) < probability)
+	if( ((rand())/(RAND_MAX+1.0)) < probability){
+	    result[0] = 1;
+		result[1] = delta;
+	}
+	else{
 		result[0] = 0;
-	else
-		result[0] = 1;
+		result[1] = 0;
+	}
 
 	//we should send a two element paylod to the parent
 	//1st element is the accpetance (true or flase)
