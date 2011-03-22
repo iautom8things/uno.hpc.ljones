@@ -28,7 +28,6 @@ int main(int argc, char** argv){
     if (id==0)
         output_file = "data.csv"; // the default output file name
 
-
     ///////////   THIS IS FOR YOU DR. SUMMA  //////////////////////
     ///////////         ARGUMENTS            //////////////////////
     
@@ -128,12 +127,17 @@ int main(int argc, char** argv){
     srand(seed+id); // reseed the random number generator so each process has a different seed
     
 	//-------Intialise the system energies for process 0------//
+	
 	int energy_counter = 1;
     int max_number_of_energies = NUMBER_OF_TRIALS + 1;
-	long double the_system_energy[max_number_of_energies];
-	the_system_energy[0] = system_energy(cubes);
-
-
+    
+	long double current_system_energy = system_energy(cubes);
+    FILE *file;
+    if (id==0){
+        file = fopen(output_file,"w");
+        fprintf(file,"Energy\t%3d\t%Lf\n",0,current_system_energy);
+        
+    }
 	//////---------START MPI STUFF---------///////
 	
     int max_buff_size = 4;
@@ -179,21 +183,24 @@ int main(int argc, char** argv){
 	       setup_tree(max_buff_size, childrens_max_buff_size, previous_state, current_peturbing, accepted_state, rejected_state);
 	    
 	    //----- Save the information of the particles we remove so we can later revert back -----//
-        for(i = 0; i < max_buff_size; i++) {
-		    int index = (int)previous_state[i];
-		    particle_reversion[i] = index;
-		    particle_reversion[i+1] = particle_array[index].x;
-		    particle_reversion[i+2] = particle_array[index].y;
-		    particle_reversion[i+3] = particle_array[index].z;
-            i+=3;
-	    }
-	
-	    j = 0;
+	    if (id != 0){
+            for(i = 0; i < max_buff_size; i++) {
+		        int index = (int)previous_state[i];
+		        particle_reversion[i] = index;
+		        particle_reversion[i+1] = particle_array[index].x;
+		        particle_reversion[i+2] = particle_array[index].y;
+		        particle_reversion[i+3] = particle_array[index].z;
+                i+=3;
+	        }
+        }
+        else{
+            i = 0;
+        }
         int index;
-		    particle_reversion[i] = index = current_peturbing[0];
-		    particle_reversion[i+1] = particle_array[index].x;
-		    particle_reversion[i+2] = particle_array[index].y;
-		    particle_reversion[i+3] = particle_array[index].z;
+		particle_reversion[i] = index = current_peturbing[0];
+		particle_reversion[i+1] = particle_array[index].x;
+		particle_reversion[i+2] = particle_array[index].y;
+		particle_reversion[i+3] = particle_array[index].z;
 		
 		//----- Update each nodes particle array and cubes so that the they reflect the state given by the parent node -----//    
 	    if(id != 0 && id < usable_procs)
@@ -231,37 +238,34 @@ int main(int argc, char** argv){
 		    MPI_Recv(&live, 1, MPI_INT, 0 , id , MPI_COMM_WORLD, &status);
             remaining_trials = live;
 
-		    //----- If live then revert and catch up -----//
-		    //if(live > 0) {
-				int length = max_length - ((max_length/6)*2);
-			    double catch_up[length];
+		    //----- Revert and catch up -----//
+			int length = max_length - ((max_length/6)*2);
+			double catch_up[length];
 
-			    //----- Revert -----//		
-			    for(i = 0; i < max_buff_size+4; i++) {
+			//----- Revert -----//		
+			for(i = 0; i < max_buff_size+4; i++) {
 
-				    if(particle_reversion[i] != -1) {
-					    int cube_index;
-					    double x,y,z;
-					    int index = (int)particle_reversion[i];
+			    if(particle_reversion[i] != -1) {
+				    int cube_index;
+				    double x,y,z;
+				    int index = (int)particle_reversion[i];
 
-					    remove_particle(&cubes[particle_array[index].myCube], particle_array[index]);
+				    remove_particle(&cubes[particle_array[index].myCube], particle_array[index]);
 
-					    particle_array[index].x = x = particle_reversion[i+1];
-					    particle_array[index].y = y = particle_reversion[i+2];
-					    particle_array[index].z = z = particle_reversion[i+3];
-					    particle_array[index].myCube = cube_index = belongs_to_cube((int) x/10, (int) y/10, (int) z/10);
+					particle_array[index].x = x = particle_reversion[i+1];
+					particle_array[index].y = y = particle_reversion[i+2];
+					particle_array[index].z = z = particle_reversion[i+3];
+					particle_array[index].myCube = cube_index = belongs_to_cube((int) x/10, (int) y/10, (int) z/10);
 
-					    addToCube(&cubes[cube_index],particle_array[index]);
-				    }
-				    i += 3;
-			    } // END for loop
+				    addToCube(&cubes[cube_index],particle_array[index]);
+			    }
+			    i += 3;
+		    } // END for loop
 
-			    //----- Wait for the catch up state -----//				
-			    MPI_Recv(&catch_up, length, MPI_DOUBLE, 0 , id ,MPI_COMM_WORLD, &status);
-				//-----UPDATE THE STATE TO CATCH UP WITH PROCESS 0----//
-				update_state(catch_up,length);
-			    
-		    //} // END if (live == 1)
+		    //----- Wait for the catch up state -----//				
+		    MPI_Recv(&catch_up, length, MPI_DOUBLE, 0 , id ,MPI_COMM_WORLD, &status);
+			//-----UPDATE THE STATE TO CATCH UP WITH PROCESS 0----//
+			update_state(catch_up,length);
 	    } // END if (id != 0)
         
 	    //----- If process 0 then print the data received -----//
@@ -270,7 +274,8 @@ int main(int argc, char** argv){
             //printf("[ ");
 		    for(i = 0; i < result_length; i++) {
 		        if (result[i] != -1){ // Skip 'empty' results: This is when we don't have a full tree, and our path leads to a node on the level above the non-complete level
-                    the_system_energy[energy_counter] = the_system_energy[energy_counter - 1] + result[i+1];
+                    current_system_energy += result[i+1];
+                    fprintf(file,"Energy\t%3d\t%Lf\n",energy_counter,current_system_energy);
                     //printf("%LF, ", result[i+1]);
 				    energy_counter++;
 				    level *= 2;
@@ -281,8 +286,6 @@ int main(int argc, char** argv){
             //printf(" ]\t%d\t%Lf\n", energy_counter,the_system_energy[energy_counter-1]);
             remaining_trials -= log2(level);
             //printf("NUMTRIALS: %d\n", remaining_trials);
-            
-                
             
             live = remaining_trials;
 		    int length = max_length - ((max_length/6)*2);
@@ -315,13 +318,10 @@ int main(int argc, char** argv){
 
 				//-----SEND THE PARSED DATA------//
 			    MPI_Send(&parsed_return, length, MPI_DOUBLE, i, i, MPI_COMM_WORLD);
-			    
-			    
 		    }
 
             count = NUMBER_OF_TRIALS-remaining_trials;
             twentieth = NUMBER_OF_TRIALS/20;
-            //printf("%d : %d\n", count, twentieth);
             printf("\r%7d | %3d%% [",count, (count/twentieth)*5);
 
             for (j=0;j<count/twentieth;j++){
@@ -337,19 +337,17 @@ int main(int argc, char** argv){
 		} // END if (id == 0)
 
 	}while(live > 0);
-	if (id==0){
-        printf("\n");
-	    //-----------WRITE THE DATA TO A FILE----------//
-		FILE * file = fopen(output_file,"w");
-		for(i = 0; i< max_number_of_energies; i++)
-			fprintf(file,"Energy\t%3d\t%Lf\n",i,the_system_energy[i]);
-		
+	
+	//----------------CLOSE THE FILE--------------//
+	if (id==0)
 		fclose(file);
-		//----------------CLOSE THE FILE--------------//
-	}
-    i=1;
-    printf("%d::%d: x:%f y:%f z:%f\n", id, i, particle_array[i].x,particle_array[i].y,particle_array[i].z);    
-    
+	
+/*
+    // Prints the ith particle for every node to check if they are all the same
+    i=999;
+    printf("%d::%d: x:%f y:%f z:%f\n", id, i, particle_array[i].x,particle_array[i].y,particle_array[i].z);   */ 
+    if (id==0)
+        printf("\n");
     clean(cubes);
     MPI_Finalize();
 }//end main
